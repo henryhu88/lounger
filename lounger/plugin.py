@@ -1,10 +1,9 @@
 import logging
-from datetime import datetime, UTC
-from io import StringIO
-from typing import Any
-
 import pytest
+from datetime import datetime, timezone
+from io import StringIO
 from loguru import logger
+from typing import Any
 
 from lounger.pytest_extend.screenshot import screenshot_base64
 
@@ -48,9 +47,9 @@ def pytest_runtest_setup(item: Any) -> None:
             pytest.skip(f"test requires env in {env_names}")
 
 
-def pytest_html_report_title(report):
+def pytest_xhtml_report_title(report):
     """
-    Configures the pytest-html report title based on command-line options.
+    Configures the pytest-xhtml report title based on command-line options.
     :param report:
     :return:
     """
@@ -58,20 +57,20 @@ def pytest_html_report_title(report):
     report.title = html_title
 
 
-def pytest_html_results_table_header(cells):
+def pytest_xhtml_results_table_header(cells):
     cells.insert(2, "<th>Description</th>")
     cells.insert(3, '<th class="sortable time" data-column-type="time">Time</th>')
 
 
-def pytest_html_results_table_row(report, cells):
+def pytest_xhtml_results_table_row(report, cells):
     cells.insert(2, f"<td>{report.description}</td>")
-    cells.insert(3, f'<td class="col-time">{datetime.now(tz=UTC).strftime("%Y-%m-%d %H:%M:%S")}</td>')
+    cells.insert(3, f'<td class="col-time">{datetime.now(timezone.utc)}</td>')
 
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item):
     outcome = yield
-    pytest_html = item.config.pluginmanager.getplugin('html')
+    pytest_xhtml = item.config.pluginmanager.getplugin('xhtml')
     report = outcome.get_result()
     report.description = str(item.function.__doc__)
     extra = getattr(report, 'extra', [])
@@ -82,12 +81,14 @@ def pytest_runtest_makereport(item):
             if page is not None:
                 # add screenshot to HTML report.
                 image = screenshot_base64(page)
-                extra.append(pytest_html.extras.image(image, mime_type='image/png'))
+                if pytest_xhtml:
+                    extra.append(pytest_xhtml.extras.image(image, mime_type='image/png'))
 
         # add Loguru log to HTML report.
         log_content = LOG_STREAM.getvalue()
         if log_content.strip():
-            extra.append(pytest_html.extras.text(log_content, "Loguru Log"))
+            if pytest_xhtml:
+                extra.append(pytest_xhtml.extras.text(log_content, "Loguru Log"))
         # Empty memory stream
         LOG_STREAM.truncate(0)
         LOG_STREAM.seek(0)
@@ -104,8 +105,8 @@ def pytest_addoption(parser: Any) -> None:
         "--html-title",
         action="store",
         default=[],
-        help="Specifies the title of the pytest-html test report",
-    )
+        help="Specifies the title of the pytest-xhtml test report",
+    ),
     group.addoption(
         "--env",
         action="store",
