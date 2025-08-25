@@ -1,10 +1,9 @@
-import logging
 from datetime import datetime, timezone
 from io import StringIO
 from typing import Any
 
 import pytest
-from loguru import logger
+from pytest_req.log import log_cfg
 
 from lounger.pytest_extend.screenshot import screenshot_base64
 
@@ -13,20 +12,18 @@ LOG_STREAM = StringIO()
 html_title = "Lounger Test Report"
 
 
+@pytest.fixture(scope="session", autouse=True)
+def setup_log():
+    """
+    setup log
+    """
+    # setting log format
+    log_format = "<green>{time:YYYY-MM-DD HH:mm:ss}</> |<level> {level} | {message}</level>"
+    log_cfg.set_level(format=log_format)
+
+
 @pytest.hookimpl(tryfirst=True)
 def pytest_configure(config):
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s | %(levelname)-8s | %(filename)s | %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    html = config.getoption("--html")
-    if html:
-        logger.remove()
-        logger.add(LOG_STREAM,
-                   format="{time: YYYY-MM-DD HH:mm:ss} | <level>{level: <8}</level> | {file: <10} | {message}",
-                   level="DEBUG")
-
     global html_title
     # Here we fetch the command-line argument using config object
     title = config.getoption("--html-title")
@@ -64,7 +61,10 @@ def pytest_xhtml_results_table_header(cells):
 
 
 def pytest_xhtml_results_table_row(report, cells):
-    cells.insert(2, f"<td>{report.description}</td>")
+    if hasattr(report, "description"):
+        cells.insert(2, f"<td>{report.description}</td>")
+    else:
+        cells.insert(2, "<td>No description</td>")
     cells.insert(3, f'<td class="col-time">{datetime.now(timezone.utc)}</td>')
 
 
@@ -85,11 +85,6 @@ def pytest_runtest_makereport(item):
                 if pytest_html:
                     extra.append(pytest_html.extras.image(image, mime_type='image/png'))
 
-        # add Loguru log to HTML report.
-        log_content = LOG_STREAM.getvalue()
-        if log_content.strip():
-            if pytest_html:
-                extra.append(pytest_html.extras.text(log_content, "Loguru Log"))
         # Empty memory stream
         LOG_STREAM.truncate(0)
         LOG_STREAM.seek(0)
