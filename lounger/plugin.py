@@ -1,9 +1,10 @@
 import logging
-import pytest
 from datetime import datetime, timezone
 from io import StringIO
-from loguru import logger
 from typing import Any
+
+import pytest
+from loguru import logger
 
 from lounger.pytest_extend.screenshot import screenshot_base64
 
@@ -70,7 +71,7 @@ def pytest_xhtml_results_table_row(report, cells):
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item):
     outcome = yield
-    pytest_xhtml = item.config.pluginmanager.getplugin('xhtml')
+    pytest_html = item.config.pluginmanager.getplugin('html')
     report = outcome.get_result()
     report.description = str(item.function.__doc__)
     extra = getattr(report, 'extra', [])
@@ -81,14 +82,14 @@ def pytest_runtest_makereport(item):
             if page is not None:
                 # add screenshot to HTML report.
                 image = screenshot_base64(page)
-                if pytest_xhtml:
-                    extra.append(pytest_xhtml.extras.image(image, mime_type='image/png'))
+                if pytest_html:
+                    extra.append(pytest_html.extras.image(image, mime_type='image/png'))
 
         # add Loguru log to HTML report.
         log_content = LOG_STREAM.getvalue()
         if log_content.strip():
-            if pytest_xhtml:
-                extra.append(pytest_xhtml.extras.text(log_content, "Loguru Log"))
+            if pytest_html:
+                extra.append(pytest_html.extras.text(log_content, "Loguru Log"))
         # Empty memory stream
         LOG_STREAM.truncate(0)
         LOG_STREAM.seek(0)
