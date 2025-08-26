@@ -5,7 +5,7 @@ from typing import Any
 import pytest
 from pytest_req.log import log_cfg
 
-from lounger.pytest_extend.screenshot import screenshot_base64
+from lounger.pytest_extend import screenshot_base64
 
 LOG_STREAM = StringIO()
 

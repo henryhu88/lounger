@@ -27,6 +27,8 @@ def main(project_web, project_api):
         create_scaffold(project_api, "api")
         return 0
 
+    return None
+
 
 def create_scaffold(project_name: str, type: str) -> None:
     """
