@@ -1,3 +1,9 @@
+## 0.3.0(2025-08-27)
+
+* 使用`pyest-xhtml`替换`pytest-html`报告，现代美观。
+* 升级`pytest-playwright>=0.7.0`最新版本。
+* 修复: `HTML` 报告无法集成`pytest-req`日志的问题。
+
 ## 0.2.0(2024-09-27)
 
 * 增加`HttpRequest`类，支持`API objects`设计模式。
