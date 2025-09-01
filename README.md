@@ -97,6 +97,10 @@ $ cd myweb  # or myapi
 $ pytest
 ```
 
+* 测试报告
+
+![](./images/report.png)
+
 ## 示例
 
 [tests](./tests/) 提供了大量的示例学习。你会看到不少 seldom 类似的用法。
