@@ -1,16 +1,14 @@
-[build-system]
-requires = ["setuptools>=61", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "lounger"
-version = "0.3.0"
+version = "0.3.1"
 description = "Next generation automated testing framework."
 readme = "README.md"
 authors = [
     { name = "bugmaster", email = "defnngj@gmail.com" }
 ]
+
 requires-python = ">=3.9"
+
 dependencies = [
     "pytest-playwright>=0.7.0,<0.8.0",
     "pytest-req>=0.3.0,<0.4.0",
@@ -23,16 +21,12 @@ dependencies = [
     "python-dateutil==2.8.2",
 ]
 
-[tool.setuptools]
-package-dir = { lounger = "lounger" }
+[project.urls]
+repository = "https://github.com/SeldomQA/lounger"
+homepage = "https://github.com/SeldomQA/lounger"
 
-[tool.setuptools.packages.find]
-where = ["lounger"]
-
-# 命令行脚本入口
 [project.scripts]
 lounger = "lounger.cli:main"
 
-# pytest 插件入口
 [project.entry-points."pytest11"]
 lounger = "lounger.plugin"
