@@ -13,7 +13,7 @@ authors = [
 requires-python = ">=3.9"
 dependencies = [
     "pytest-playwright>=0.7.0,<0.8.0",
-    "pytest-req>=0.3.0,<0.4.0",
+    "pytest-req>=0.4.0",
     "PyYAML>=6.0.2,<7.0.0",
     "openpyxl>=3.1.5,<3.2.0",
     "PyMySQL>=1.1.1,<2.0.0",
