@@ -1,14 +1,12 @@
 import base64
 import datetime
-import logging
 from typing import Any
 
 import yaml
 
-from lounger.utils.fake_user_generator import UserGenerator
-from lounger.utils.get_configs import ConfigUtils
-
 from lounger.log import log
+from lounger.utils.config_utils import ConfigUtils
+from lounger.utils.fake_user_generator import UserGenerator
 
 config_utils = ConfigUtils("config/config.yaml")
 base_config = config_utils.get_config('base_test_config')
