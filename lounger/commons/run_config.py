@@ -1,5 +1,6 @@
 import glob
 from typing import List, Tuple
+from pathlib import Path
 
 from lounger.log import log
 from lounger.utils.config_utils import ConfigUtils
@@ -53,9 +54,9 @@ def get_case_path() -> List[str]:
     log.info(f"project_name_list: {project_name_list}")
     try:
         need_test_projects, skip_test_projects = get_project_config()
-        log.info("=== Project Test Configuration ===")
-        log.info(f"Projects to test: {need_test_projects}")
-        log.info(f"Projects to skip: {skip_test_projects}")
+        log.info("=== Read Test Configuration ===")
+        log.info(f"Running tests: {need_test_projects}")
+        log.info(f"Skipped tests: {skip_test_projects}")
 
         if not need_test_projects:
             log.warning("No projects configured for testing")
@@ -65,8 +66,8 @@ def get_case_path() -> List[str]:
         if len(need_test_projects) >= len(project_name_list):
             return glob.glob("datas/**/*.yaml", recursive=True)
 
-        z = _get_specific_test_cases(need_test_projects, project_name_list)
-        return z
+        case_path = _get_specific_test_cases(need_test_projects, project_name_list)
+        return case_path
     except Exception as e:
         log.error(f"Failed to get test case paths: {e}")
         return []
@@ -87,7 +88,10 @@ def _get_specific_test_cases(
     for project_name in need_test_projects:
         if project_name in supported_projects and project_name != 'single_file':
             # Get all test cases under the specified project
-            project_cases = glob.glob(f"datas/{project_name}/**/*.yaml", recursive=True)
+            project_cases = [
+                str(path.as_posix())
+                for path in Path("datas", project_name).rglob("*.yaml")
+            ]
         else:
             # Custom file or file list
             project_cases = _get_custom_cases(project_name)
