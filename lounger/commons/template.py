@@ -3,13 +3,13 @@ import re
 from typing import Dict, Any
 
 from lounger.log import log
-from lounger.utils.hot_loads import DebugTalk
+from lounger.utils.hot_loads import ExtractVar
 
 # Precompile regex pattern for performance
-TEMPLATE_PATTERN = re.compile(r"\$\{(.*?)\((.*?)\)\}")
+TEMPLATE_PATTERN = re.compile(r"\$\{(.*?)\((.*?)\)}")
 
 
-def replace_template(case_info: Dict[str, Any]) -> Dict[str, Any]:
+def template_replace(case_info: Dict[str, Any]) -> Dict[str, Any]:
     """
     Scan test case data and process templates that need to be replaced
     
@@ -22,7 +22,7 @@ def replace_template(case_info: Dict[str, Any]) -> Dict[str, Any]:
         return case_info
 
     matches = TEMPLATE_PATTERN.findall(case_info_str)
-    debug_talk = DebugTalk()
+    extract_var = ExtractVar()
 
     if not matches:
         return case_info
@@ -31,12 +31,12 @@ def replace_template(case_info: Dict[str, Any]) -> Dict[str, Any]:
         old_value = f"${{{func_name}({func_args})}}"
 
         # Check if method exists
-        if not hasattr(debug_talk, func_name):
+        if not hasattr(extract_var, func_name):
             log.warning(f"Method {func_name} does not exist, please check method name")
             continue
 
         # Get method and execute with appropriate arguments
-        method = getattr(debug_talk, func_name)
+        method = getattr(extract_var, func_name)
 
         try:
             if not func_args:  # No arguments
