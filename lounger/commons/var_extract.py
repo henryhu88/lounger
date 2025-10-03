@@ -1,8 +1,8 @@
 import copy
 from typing import Dict, Any, Optional
 
-from lounger.log import log
 from lounger.libs import jmespath
+from lounger.log import log
 from lounger.utils.cache import cache
 
 
@@ -33,9 +33,13 @@ def extract_value(resp: Any, expr: str) -> Any:
 
     if prepared_resp is not None:
         # Set method as attribute
-        resp_json = prepared_resp.json()
-        value = jmespath.jmespath(resp_json, expr)
-        return value
+        try:
+            resp_json = prepared_resp.json()
+            value = jmespath.jmespath(resp_json, expr)
+            return value
+        except ValueError as e:
+            log.error(f"The response is not a valid JSON: {e}")
+            return None
 
     return None
 
@@ -60,4 +64,3 @@ def save_var(resp: Any, data: Optional[Dict[str, str]]) -> None:
 
         # Save value
         _save_extracted_values(key, result)
-        log.info(f"Variable extraction successful, name: {key}, value: {result}")

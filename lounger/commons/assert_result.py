@@ -1,72 +1,95 @@
-import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 
 import requests
 
-from lounger.commons.var_extract import extract_value
-from lounger.config import ASSERT_TYPES
+from lounger.libs import jmespath
+from lounger.log import log
 
-logger = logging.getLogger(__name__)
+# Assertion types
+ASSERT_TYPES: dict = {
+    # assertion_type: expects (expected, actual) -> bool
+    "equal": lambda expect, actual: expect == actual,  # Assert equality
+    "not_equal": lambda expect, actual: expect != actual,  # Assert inequality
+    "contains": lambda expect, actual: expect in actual,  # Assert that actual contains expected
+    "not_contains": lambda expect, actual: expect not in actual,  # Assert that actual does not contain expected
+    "type": lambda expect, actual: type(expect) == type(actual),  # Assert data type match
+    "length": lambda expect, actual: int(expect) == len(actual),  # Assert length match
+}
+
+
+def _get_actual_value(resp: requests.Response, expr: str):
+    """
+    Extract the actual value from the API response based on the given expression.
+
+    Supported expression formats:
+    - "status_code": returns the HTTP status code (e.g., 200)
+    - "headers.<key>": returns the value of the specified response header (e.g., "headers.Content-Type")
+    - "body.<jmespath>": treats <jmespath> as a JMESPath expression applied to the JSON response body
+    - Any other expression: treated as a JMESPath expression applied directly to the JSON response body
+      (equivalent to prepending "body.")
+
+    :param resp: Response object from the API request
+    :param expr: Expression string to extract value, e.g.,
+                "status_code",
+                "headers.Content-Type",
+                "body.code", or "data.name"
+    """
+    if expr == "status_code":
+        return resp.status_code
+    elif expr.startswith("headers."):
+        header_key = expr[8:]
+        return resp.headers.get(header_key)
+    elif expr.startswith("body."):
+        jmes_expr = expr[5:]
+        json_data = resp.json()
+        return jmespath.jmespath(json_data, jmes_expr)
+    else:
+        json_data = resp.json()
+        return jmespath.jmespath(json_data, expr)
 
 
 def api_validate(resp: requests.Response, validate_value: Optional[Dict[str, Any]]) -> None:
     """
     Validate API response against the specified assertion rules
-    
+
     :param resp: Response object from API request
-    :param validate_value: Dictionary containing assertion rules
+    :param validate_value: Dictionary containing assertion rules, e.g.:
+        {
+            "equal": [["status_code", 200], ["body.code", 10200]],
+            "not_equal": [["body.data.name", "jack"]],
+            "contains": [["body.message", "succ"]],
+            "not_contains": [["body.message", "access"]]
+        }
     """
     if not validate_value:
-        logger.warning("No assertions configured")
         return
 
-    for assert_type, assert_value in validate_value.items():
-        logger.info(f"Performing [{assert_type}] assertion...")
-        try:
-            if assert_type in ASSERT_TYPES:
-                # Check if it's a multi-level assertion
-                if (assert_value is not None and
-                        isinstance(assert_value, list) and
-                        all(isinstance(item, list) and len(item) == 4 for item in assert_value)):
-                    for assert_data in assert_value:
-                        assert_handle(resp, assert_type, assert_data)
+    for assert_type, assertions in validate_value.items():
+        if assert_type not in ASSERT_TYPES:
+            log.warning(f"Unsupported assertion type: {assert_type}")
+            continue
+
+        if not isinstance(assertions, list):
+            log.error(f"Assertion value for '{assert_type}' must be a list of [expr, expected]")
+            continue
+
+        for item in assertions:
+            if not isinstance(item, list) or len(item) != 2:
+                log.error(f"Invalid assertion format: {item}. Expected [expr, expected]")
+                continue
+
+            expr, expected = item
+            actual = _get_actual_value(resp, expr)
+            assert_func = ASSERT_TYPES[assert_type]
+            result = assert_func(expected, actual)
+
+            if result:
+                if assert_type == "length":
+                    log.info(
+                        f"[{assert_type}] assertion passed: expr={expr}, expected={expected}, actual_length={len(actual)}")
                 else:
-                    # Single-level assertion
-                    assert_handle(resp, assert_type, assert_value)
+                    log.info(f"[{assert_type}] assertion passed: expr={expr}, expected={expected}, actual={actual}")
             else:
-                logger.warning(f"Unsupported assertion type: {assert_type}")
-        except Exception as e:
-            logger.error(f"Assertion failed: {e}")
-            raise
-
-
-def assert_handle(resp: requests.Response, assert_type: str, assert_value: List[Any]) -> None:
-    """
-    Handle individual assertion checks
-    
-    :param resp: API response object
-    :param assert_type: Type of assertion to perform
-    :param assert_value: Assertion parameters
-    """
-    if len(assert_value) == 4:  # Check if assertion parameters are complete
-        expect, value_type, expr, index = assert_value
-        index = 0 if index == "" else index  # Default to 0 if index is empty
-        logger.info(f"Extracting assertion variable: extraction method={value_type}, extraction expression={expr}")
-
-        actual = extract_value(resp, value_type, expr, index)
-        assert_func = ASSERT_TYPES.get(assert_type)
-
-        if not assert_func:
-            logger.warning(f"Assertion function not found for type: {assert_type}")
-            return
-
-        result = assert_func(expect, actual)
-        if not result:
-            logger.error(f"{assert_type} assertion failed, expected={expect}, actual={actual}")
-        else:
-            if assert_type == 'length':
-                logger.info(f"{assert_type} assertion passed, expected={expect}, actual_length={len(actual)}")
-            else:
-                logger.info(f"{assert_type} assertion passed, expected={expect}, actual={actual}")
-    else:
-        logger.warning(f"{assert_type} assertion parameters missing, please check: {assert_value}")
+                log.error(f"[{assert_type}] assertion failed: expr={expr}, expected={expected}, actual={actual}")
+                raise AssertionError(
+                    f"[{assert_type}] assertion failed: {expr} → expected {expected}, got {actual}")

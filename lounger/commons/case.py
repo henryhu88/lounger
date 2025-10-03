@@ -3,6 +3,7 @@ from typing import Dict, Any
 import pytest
 
 from lounger.commons.all_request import request_client
+from lounger.commons.assert_result import api_validate
 from lounger.commons.model import verify_model
 from lounger.commons.template_replace import replace_template
 from lounger.commons.var_extract import save_var
@@ -32,7 +33,7 @@ def execute_case(caseinfo: Dict[str, Any]) -> None:
 
             # Code for variable extraction and API validation is commented out
             save_var(resp, processed_case.get("extract"))
-            # api_validate(resp, processed_case.get("validate"))
+            api_validate(resp, processed_case.get("validate"))
         else:
             log.warning(f"Skipping test case: {model}==>{title}")
             pytest.skip(f"Test case skipped: {model}==>{title}")
