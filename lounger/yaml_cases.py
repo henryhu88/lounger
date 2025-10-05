@@ -69,4 +69,3 @@ def load_teststeps():
         load_test_cases(),
         ids=[tc[0] for tc in load_test_cases()]  # Display clear test names in reports
     )
-    # return pytest.mark.parametrize("test_name,file_path", load_test_file())

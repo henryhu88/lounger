@@ -1,5 +1,7 @@
 from typing import Dict, Any
 
+import pytest
+
 from lounger.commons.all_request import request_client
 from lounger.commons.assert_result import api_validate
 from lounger.commons.model import verify_model
@@ -32,5 +34,4 @@ def execute_case(case_step: Dict[str, Any]) -> None:
         api_validate(resp, processed_case.get("validate"))
 
     except Exception as e:
-        log.error(f"Test case execution failed: {e}")
-        raise
+        pytest.fail(f"❌ Test case execution failed: {str(e)}")
