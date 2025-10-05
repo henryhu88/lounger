@@ -1,7 +1,9 @@
 from typing import Dict, Any, Optional
+
 import yaml
 
 from lounger.log import log
+
 
 class ConfigUtils:
     """
@@ -14,10 +16,8 @@ class ConfigUtils:
         Initialize the ConfigUtils with the path to the YAML configuration file.
         
         :param config_file_path: Path to the YAML configuration file
-        :raises FileNotFoundError: If the configuration file does not exist
         """
         self.config_file_path = config_file_path
-        # Verify the file exists during initialization
         try:
             with open(self.config_file_path, 'r', encoding='utf-8'):
                 pass
@@ -28,9 +28,6 @@ class ConfigUtils:
     def _get_config_file_data(self) -> Dict[str, Any]:
         """
         Get configuration file data.
-        
-        :return: Dictionary containing the configuration file data
-        :raises Exception: If there's an error loading the configuration file
         """
         try:
             with open(self.config_file_path, "r", encoding="utf-8") as f:
@@ -49,26 +46,21 @@ class ConfigUtils:
         
         :param config_node: Name of the configuration node
         :param config_key: Optional key within the configuration node
-        :return: Configuration data for the node or specific key
         """
         try:
             config_data = self._get_config_file_data()
-            
+
             if config_node not in config_data:
                 log.warning(f"Configuration node '{config_node}' not found")
                 raise KeyError(f"Configuration node '{config_node}' not found")
-            
+
             if config_key is not None:
                 if config_key not in config_data[config_node]:
                     log.warning(f"Configuration key '{config_key}' not found in node '{config_node}'")
                     raise KeyError(f"Configuration key '{config_key}' not found in node '{config_node}'")
                 return config_data[config_node][config_key]
-            
+
             return config_data[config_node]
         except Exception as e:
             log.error(f"Failed to get configuration: {e}")
             raise e
-
-
-# Default instance using the standard configuration file path
-config_utils = ConfigUtils("config/config.yaml")

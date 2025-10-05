@@ -1,21 +1,23 @@
+from typing import Dict, Any
+
 import requests
-from typing import Dict, Any, Optional
 from pytest_req.plugin import Session
 
+from lounger.commons.run_config import BASE_URL
 from lounger.log import log
-from lounger.utils.get_configs import config_utils
-
-base_url: dict = config_utils.get_config('base_url')
 
 
 class AllRequests:
-    """HTTP client wrapper for handling all API requests"""
-    
+    """
+    HTTP client wrapper for handling all API requests
+    """
+
     def __init__(self):
         """Initialize the HTTP client with base URL"""
-        self._session = Session(base_url)
+        self._session = Session(BASE_URL)
 
-    def _files_load(self, files_dict: Dict[str, str]) -> Dict[str, Any]:
+    @staticmethod
+    def _files_load(files_dict: Dict[str, str]) -> Dict[str, Any]:
         """
         Process file upload parameters
         
@@ -45,14 +47,10 @@ class AllRequests:
             # Process files if present
             if "files" in kwargs:
                 kwargs["files"] = self._files_load(kwargs["files"])
-            
+
             # Add content type for JSON requests
             if "json" in kwargs:
                 kwargs.setdefault("headers", {}).update({"Content-Type": "application/json"})
-            
-            # Log request parameters
-            for key, value in kwargs.items():
-                log.info(f"Request {key} parameter: {value}")
 
             # Get method and URL
             method = kwargs.pop("method", "GET").upper()
@@ -65,15 +63,15 @@ class AllRequests:
                 "PUT": self._session.put,
                 "DELETE": self._session.delete
             }
-            
+
             if method not in method_handlers:
                 raise NotImplementedError(f"Only supported methods: {', '.join(method_handlers.keys())}")
-            
+
             resp = method_handlers[method](url, **kwargs)
-            
+
             # Content type handling (commented out but kept for reference)
             # content_type = resp.headers.get("Content-Type", "")
-            
+
             return resp
         except Exception as e:
             log.error(f"API request failed: {e}")

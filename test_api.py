@@ -1,14 +1,14 @@
 import os
+
 import pytest
 
-from lounger.commons.case import execute_case
-from lounger.commons import get_case_path
+from lounger.case import execute_case
+from lounger.commons.run_config import get_case_path
 from lounger.log import log
-from lounger.utils.file_handle import read_yaml
+from lounger.yaml_cases import read_yaml
 
 
 class TestApiFramework:
-    log.error("test error")
     pass
 
 
@@ -21,7 +21,7 @@ def create_func_case(path):
 
     @pytest.mark.parametrize('caseinfo', read_yaml(path))
     def func(self, caseinfo):
-        log.info(caseinfo['model'])
+        log.info(caseinfo['name'])
         execute_case(caseinfo)
 
     return func

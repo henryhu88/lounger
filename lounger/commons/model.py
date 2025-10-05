@@ -1,6 +1,4 @@
 from dataclasses import dataclass
-
-from dataclasses import dataclass
 from typing import Dict, Any, Optional
 
 from lounger.log import log
@@ -10,11 +8,8 @@ from lounger.log import log
 class Model:
     """Data model for test cases"""
 
-    model: str
-    title: str
+    name: str
     request: Dict[str, Any]
-
-    skip: Optional[bool] = None
     extract: Optional[Dict[str, Any]] = None
     validate: Optional[Dict[str, Any]] = None
 
