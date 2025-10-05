@@ -1,19 +1,21 @@
-- name: 测试模块名称
-  request:
-    method: GET
-    url: /search/
-    headers:
-    params:
-      q: "selenium"
-  validate: # 断言验证
-    equal:
-- name: 测试模块名称2
-  request:
-    method: POST
-    url: /login
-    headers:
-    data:
-      username: "admin"
-      password: "a123456"
-  validate: # 断言验证
-    equal:
+- teststeps:
+    - name: a GET request
+      request:
+        method: GET
+        url: /search/
+        headers:
+        params:
+          q: "selenium"
+      validate: # 断言验证
+        equal:
+- teststeps:
+    - name: a POST request
+      request:
+        method: POST
+        url: /login
+        headers:
+        data:
+          username: "admin"
+          password: "a123456"
+      validate: # 断言验证
+        equal:

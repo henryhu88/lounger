@@ -1,10 +1,11 @@
 import os
+from typing import Any, Optional, List, Tuple, Dict
+
 import pytest
-from typing import Any, Optional, List, Tuple
 import yaml
 
-from lounger.log import log
 from lounger.commons.run_config import get_case_path
+from lounger.log import log
 
 
 def read_yaml(yaml_path: str, key: Optional[str] = None) -> Any:
@@ -25,17 +26,47 @@ def read_yaml(yaml_path: str, key: Optional[str] = None) -> Any:
         return None
 
 
-def load_test_file() -> List[Tuple[str, str]]:
+def load_test_cases() -> List[Tuple[str, List[Dict], str]]:
     """
-    load all YAML file
+    Load all YAML files and extract each 'teststeps' block as a single test case.
+    Returns: List[(test_name, teststeps_list, source_file)]
     """
-    cases = []
+    testcases = []
     for file_path in get_case_path():
-        file_name = os.path.basename(file_path).replace('.yaml', '')
-        cases.append((f"test_{file_name}", file_path))
+        file_name = os.path.basename(file_path).replace(".yaml", "")
+        test_data = read_yaml(file_path)
 
-    return cases
+        if not test_data:
+            log.warning(f"YAML file is empty or failed to parse: {file_path}")
+            continue
+
+        # Iterate over each 'teststeps' block (a file can have multiple blocks)
+        for idx, block in enumerate(test_data):
+            if "teststeps" not in block:
+                continue
+
+            teststeps = block["teststeps"]
+            if not isinstance(teststeps, list) or len(teststeps) == 0:
+                continue
+
+            # Generate test name: filename + case index + first step name
+            first_step_name = teststeps[0].get("name", f"step_0")
+            test_name = f"{file_name}::case_{idx + 1}_{first_step_name}"
+
+            testcases.append((test_name, teststeps, file_path))
+
+    if not testcases:
+        log.warning("No teststeps test cases loaded.")
+    else:
+        log.info(f"Loaded {len(testcases)} teststeps test cases.")
+
+    return testcases
 
 
-def load_cases():
-    return pytest.mark.parametrize("test_name,file_path", load_test_file())
+def load_teststeps():
+    return pytest.mark.parametrize(
+        "test_name, teststeps, file_path",
+        load_test_cases(),
+        ids=[tc[0] for tc in load_test_cases()]  # Display clear test names in reports
+    )
+    # return pytest.mark.parametrize("test_name,file_path", load_test_file())
