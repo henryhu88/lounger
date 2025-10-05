@@ -70,12 +70,10 @@ def api_validate(resp: requests.Response, validate_value: Optional[Dict[str, Any
             continue
 
         if not isinstance(assertions, list):
-            log.error(f"Assertion value for '{assert_type}' must be a list of [expr, expected]")
             continue
 
         for item in assertions:
             if not isinstance(item, list) or len(item) != 2:
-                log.error(f"Invalid assertion format: {item}. Expected [expr, expected]")
                 continue
 
             expr, expected = item

@@ -52,10 +52,6 @@ class AllRequests:
             if "json" in kwargs:
                 kwargs.setdefault("headers", {}).update({"Content-Type": "application/json"})
 
-            # Log request parameters
-            for key, value in kwargs.items():
-                log.info(f"Request {key} parameter: {value}")
-
             # Get method and URL
             method = kwargs.pop("method", "GET").upper()
             url = kwargs.pop("url", "")

@@ -1,28 +1,19 @@
-- model: 测试模块名称
-  title: 测试用例标题
-  skip: false
+- name: 测试模块名称
   request:
     method: GET
-    url: /get
+    url: /search/
     headers:
-      Content-Type: application/json
-      Authorization: token123
     params:
-      email: "henry.hu@channelwill.com"
-      code: "10011"
+      q: "selenium"
   validate: # 断言验证
     equal:
-- model: 测试模块名称2
-  title: 测试用例标题2
-  skip: false
+- name: 测试模块名称2
   request:
     method: POST
-    url: /post
+    url: /login
     headers:
-      Content-Type: application/json
-      Authorization: token123
-    json:
-      email: "henry.hu@channelwill.com"
-      code: "20011"
+    data:
+      username: "admin"
+      password: "a123456"
   validate: # 断言验证
     equal:
