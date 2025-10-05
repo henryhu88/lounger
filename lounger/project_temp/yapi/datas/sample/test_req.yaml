@@ -8,6 +8,7 @@
           q: "selenium"
       validate: # 断言验证
         equal:
+          - [ "status_code", 200 ]
 - teststeps:
     - name: a POST request
       request:
@@ -19,3 +20,4 @@
           password: "a123456"
       validate: # 断言验证
         equal:
+          - [ "status_code", 200 ]

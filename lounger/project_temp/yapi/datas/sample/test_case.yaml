@@ -6,21 +6,21 @@
         headers:
         params:
           q: "selenium"
-      validate: # 断言验证
+      validate:
         equal:
 - teststeps:
-    - name: step one
+    - presteps: setup/login.yaml
+    - name: get user info
       request:
         method: GET
         url: /id/1
         headers:
           Content-Type: application/json
-          Authorization: ${config(token)}
+          Authorization: ${extract(login_token)}
         params:
       extract: # 提取变量
-        resp_code: "code"
-        resp_name: "data.name"
-        resp_age: "data.age"
+        user_name: "data.name"
+        user_age: "data.age"
       validate: # 断言验证
         equal: # 相等断言
           - [ "status_code", 200 ]
@@ -31,16 +31,16 @@
           - [ "body.message", "succ" ]
         not_contains: # 不包含断言
           - [ "body.message", "access" ]
-    - name: step two
+    - name: add user info
       request:
         method: POST
         url: /add_user
         headers:
           Content-Type: application/json
-          Authorization: ${config(token)}
+          Authorization: ${extract(login_token)}
         json:
-          age: ${extract(resp_age)}
-          name: ${extract(resp_name)}1
+          age: ${extract(user_age)}
+          name: ${extract(user_name)}_new
           height: 173
       extract: # 提取变量
         resp_code: "code"
