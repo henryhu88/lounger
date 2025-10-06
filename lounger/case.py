@@ -5,7 +5,7 @@ import pytest
 from lounger.commons.all_request import request_client
 from lounger.commons.assert_result import api_validate
 from lounger.commons.model import verify_model
-from lounger.commons.template import template_replace
+from lounger.commons.template_engine import template_replace
 from lounger.commons.var_extract import save_var
 from lounger.log import log
 
