@@ -37,84 +37,96 @@ def main(project_web, project_api, yaml_api):
 
 def create_scaffold(project_name: str, type: str) -> None:
     """
-    create scaffold with specified project name.
-    :param project_name:
-    :param type:
-    :return:
+    Create a project scaffold with the specified name and type.
+
+    :param project_name: Name of the project (folder)
+    :param type: Project type, one of "api", "web", "yapi"
     """
-    if os.path.isdir(project_name):
-        log.info(f"Folder {project_name} exists, please specify a new folder name.")
+    project_root = Path(project_name)
+
+    # Check if project already exists
+    if project_root.exists():
+        log.info(f"Folder {project_name} already exists. Please specify a new folder name.")
         return
 
     log.info(f"Start to create new test project: {project_name}")
     log.info(f"CWD: {os.getcwd()}\n")
 
-    def create_folder(path):
-        os.makedirs(path)
-        log.info(f"created folder: {path}")
-
-    def create_file(path, file_content=""):
-        with open(path, 'w', encoding="utf-8") as py_file:
-            py_file.write(file_content)
-        msg = f"created file: {path}"
-        log.info(msg)
-
+    # Shared paths
     current_file = Path(__file__).resolve()
+    template_base = current_file.parent / "project_temp"
 
-    # create base file
-    conftest_path = current_file.parent / "project_temp" / "conftest.py"
-    conftest_content = conftest_path.read_text(encoding='utf-8')
-    create_folder(project_name)
-    create_folder(os.path.join(project_name, "reports"))
+    # Ensure project root exists
+    project_root.mkdir(parents=True, exist_ok=True)
 
-    web_ini = '''[pytest]
+    # Create reports folder
+    (project_root / "reports").mkdir(exist_ok=True)
+    log.info("📁 created folder: reports")
+
+    # Define pytest.ini content
+    ini_content = {
+        "api": '''[pytest]
+log_format = %(asctime)s | %(levelname)-8s | %(filename)s | %(message)s
+log_date_format = %Y-%m-%d %H:%M:%S
+base_url = https://httpbin.org
+addopts = -s --html=./reports/result.html
+''',
+        "web": '''[pytest]
 log_format = %(asctime)s | %(levelname)-8s | %(filename)s | %(message)s
 log_date_format = %Y-%m-%d %H:%M:%S
 base_url = https://cn.bing.com
 addopts = -s --browser=chromium --headed --html=./reports/result.html
 '''
-    api_ini = '''[pytest]
-log_format = %(asctime)s | %(levelname)-8s | %(filename)s | %(message)s
-log_date_format = %Y-%m-%d %H:%M:%S
-base_url = https://httpbin.org
-addopts = -s --html=./reports/result.html
-'''
+    }
+
+    # Write pytest.ini
+    if type == "api" or type == "web":
+        content = ini_content[type]
+        (project_root / "pytest.ini").write_text(content, encoding="utf-8")
+        log.info("📄 created file: pytest.ini")
+
+    # Define file mappings: (source, destination relative to project_root)
+    file_mappings = []
+
+    # Add conftest.py (shared)
+    conftest_src = template_base / "conftest.py"
+    file_mappings.append((conftest_src, "conftest.py"))
 
     if type == "api":
-        # create api file
-        api_case_path = current_file.parent / "project_temp" / "test_api.py"
-        content = api_case_path.read_text(encoding='utf-8')
-        create_file(os.path.join(project_name, "test_api.py"), content)
-        create_file(os.path.join(project_name, "conftest.py"), conftest_content)
-        create_file(os.path.join(project_name, "pytest.ini"), api_ini)
+        file_mappings.append((template_base / "test_api.py", "test_api.py"))
+
     elif type == "web":
-        # create web file
-        web_case_path = current_file.parent / "project_temp" / "test_web.py"
-        content = web_case_path.read_text(encoding='utf-8')
-        create_file(os.path.join(project_name, "test_web.py"), content)
-        create_file(os.path.join(project_name, "conftest.py"), conftest_content)
-        create_file(os.path.join(project_name, "pytest.ini"), web_ini)
+        file_mappings.append((template_base / "test_web.py", "test_web.py"))
+
     elif type == "yapi":
-        # create YAML api file
-        create_folder(os.path.join(project_name, "config"))
-        create_folder(os.path.join(project_name, "datas"))
-        create_folder(os.path.join(project_name, "datas", "setup"))
-        create_folder(os.path.join(project_name, "datas", "sample"))
-        test_api_path = current_file.parent / "project_temp" / "yapi" / "test_api.py"
-        config_path = current_file.parent / "project_temp" / "yapi" / "config" / "config.yaml"
-        setup_path = current_file.parent / "project_temp" / "yapi" / "datas" / "setup" / "login.yaml"
-        test_case_path = current_file.parent / "project_temp" / "yapi" / "datas" / "sample" / "test_case.yaml"
-        test_req_path = current_file.parent / "project_temp" / "yapi" / "datas" / "sample" / "test_req.yaml"
-        test_api_content = test_api_path.read_text(encoding='utf-8')
-        create_file(os.path.join(project_name, "test_api.py"), test_api_content)
-        config_content = config_path.read_text(encoding='utf-8')
-        create_file(os.path.join(project_name, "config", "config.yaml"), config_content)
-        setup_content = setup_path.read_text(encoding='utf-8')
-        create_file(os.path.join(project_name, "datas", "setup", "login.yaml"), setup_content)
-        test_case_content = test_case_path.read_text(encoding='utf-8')
-        create_file(os.path.join(project_name, "datas", "sample", "test_case.yaml"), test_case_content)
-        test_req_content = test_req_path.read_text(encoding='utf-8')
-        create_file(os.path.join(project_name, "datas", "sample", "test_req.yaml"), test_req_content)
+        # Main test file and config
+        file_mappings.extend([
+            (template_base / "yapi" / "test_api.py", "test_api.py"),
+            (template_base / "yapi" / "config" / "config.yaml", "config/config.yaml"),
+            (template_base / "yapi" / "datas" / "setup" / "login.yaml", "datas/setup/login.yaml"),
+            (template_base / "yapi" / "datas" / "sample" / "test_case.yaml", "datas/sample/test_case.yaml"),
+            (template_base / "yapi" / "datas" / "sample" / "test_req.yaml", "datas/sample/test_req.yaml"),
+        ])
+    else:
+        log.error(f"Unsupported project type: {type}. Choose from 'api', 'web', 'yapi'.")
+        return
+
+    # Copy all template files
+    for src_path, dest_rel in file_mappings:
+        try:
+            content = src_path.read_text(encoding="utf-8")
+            dest_path = project_root / dest_rel
+
+            # Ensure parent dir exists
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+
+            dest_path.write_text(content, encoding="utf-8")
+            log.info(f"📄 created file: {dest_rel}")
+        except Exception as e:
+            log.error(f"Failed to create {dest_rel}: {e}")
+
+    log.info(f"🎉 Project '{project_name}' created successfully.")
+    log.info(f"👉 Go to the project folder and run 'pytest' to start testing.")
 
 
 if __name__ == '__main__':
