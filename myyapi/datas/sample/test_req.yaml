@@ -1,0 +1,23 @@
+- teststeps:
+    - name: a GET request
+      request:
+        method: GET
+        url: /search/
+        headers:
+        params:
+          q: "selenium"
+      validate: # 断言验证
+        equal:
+          - [ "status_code", 200 ]
+- teststeps:
+    - name: a POST request
+      request:
+        method: POST
+        url: /login
+        headers:
+        data:
+          username: "admin"
+          password: "a123456"
+      validate: # 断言验证
+        equal:
+          - [ "status_code", 200 ]
