@@ -49,7 +49,7 @@ class ExtractVar:
             return None
 
     @staticmethod
-    def base64_decode(self, text: str):
+    def base64_decode(text: str):
         """
         base64 decode
         :param text:
