@@ -18,18 +18,18 @@
           Content-Type: application/json
           Authorization: ${extract(login_token)}
         params:
-      extract: # 提取变量
+      extract:
         user_name: "data.name"
         user_age: "data.age"
-      validate: # 断言验证
-        equal: # 相等断言
+      validate:
+        equal:
           - [ "status_code", 200 ]
           - [ "body.code", 10200 ]
-        not_equal: # 不等断言
+        not_equal:
           - [ "body.data.name", "jack" ]
-        contains: # 包含断言
+        contains:
           - [ "body.message", "succ" ]
-        not_contains: # 不包含断言
+        not_contains:
           - [ "body.message", "access" ]
     - name: add user info
       request:
@@ -40,11 +40,11 @@
           Authorization: ${extract(login_token)}
         json:
           age: ${extract(user_age)}
-          name: ${extract(user_name)}_new
+          name: ${extract(user_name)}
           height: 173
-      extract: # 提取变量
+      extract:
         resp_code: "code"
         resp_age: "data.age"
-      validate: # 断言验证
-        equal: # 相等断言
+      validate:
+        equal:
           - [ "status_code", 200 ]

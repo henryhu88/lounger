@@ -6,7 +6,7 @@
         headers:
         params:
           q: "selenium"
-      validate: # 断言验证
+      validate:
         equal:
           - [ "status_code", 200 ]
 - teststeps:
@@ -18,6 +18,6 @@
         data:
           username: "admin"
           password: "a123456"
-      validate: # 断言验证
+      validate:
         equal:
           - [ "status_code", 200 ]
