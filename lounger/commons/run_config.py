@@ -1,6 +1,6 @@
 import glob
-from typing import List, Tuple
 from pathlib import Path
+from typing import List, Tuple
 
 from lounger.log import log
 from lounger.utils.config_utils import ConfigUtils
@@ -23,15 +23,10 @@ def get_project_config() -> Tuple[List[str], List[str]]:
 
     # Determine which projects need to be tested
     for project_name, project_value in TEST_PROJECTS.items():
-        # Single project execution
-        if project_name == "single_file" and project_value:
+        if project_value:
             need_test_projects.append(project_name)
-        # Multi-project execution
         else:
-            if project_value:
-                need_test_projects.append(project_name)
-            else:
-                skip_test_projects.append(project_name)
+            skip_test_projects.append(project_name)
 
     return need_test_projects, skip_test_projects
 

@@ -46,7 +46,7 @@ class ExtractVar:
         """
         from lounger.utils.config_utils import ConfigUtils
         config_utils = ConfigUtils("config/config.yaml")
-        base_config = config_utils.get_config('base_test_config')
+        base_config = config_utils.get_config('global_test_config')
         try:
             return base_config.get(key)
         except Exception as e:

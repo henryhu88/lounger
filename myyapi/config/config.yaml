@@ -3,11 +3,9 @@ base_url: http://127.0.0.1:5000
 
 # 指定测试目录
 test_project:
-  # 文件级执行测试，多个文件用英文逗号隔开
-  single_file:
   sample: True  # /datas/sample/
 
 # 配置全局变量
-base_test_config:
+global_test_config:
   username: admin
   password: a123456
