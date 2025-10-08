@@ -60,6 +60,7 @@ Options:
   --version                Show version.
   -pw, --project-web TEXT  Create an web automation test project.
   -pa, --project-api TEXT  Create an api automation test project.
+  -ya, --yaml-api TEXT     Create an YAML api automation test project.
   --help                   Show this message and exit.
 ```
 
@@ -68,12 +69,15 @@ Options:
 ```shell
 $ lounger -pw myweb
 
-2024-08-17 22:05:04 | INFO     | cli.py | Start to create new test project: myweb
-2024-08-17 22:05:04 | INFO     | cli.py | CWD: D:\github\seldomQA\lounger
-2024-08-17 22:05:04 | INFO     | cli.py | created folder: myweb
-2024-08-17 22:05:04 | INFO     | cli.py | created folder: myweb\reports
-2024-08-17 22:05:04 | INFO     | cli.py | created file: myweb\test_web.py
-2024-08-17 22:05:04 | INFO     | cli.py | created file: myweb\pytest.ini
+2025-10-06 09:33:22 | INFO     | cli.py | Start to create new test project: myweb
+2025-10-06 09:33:22 | INFO     | cli.py | CWD: D:\github\seldomQA\lounger
+
+2025-10-06 09:33:22 | INFO     | cli.py | 📁 created folder: reports
+2025-10-06 09:33:22 | INFO     | cli.py | 📄 created file: pytest.ini
+2025-10-06 09:33:22 | INFO     | cli.py | 📄 created file: conftest.py
+2025-10-06 09:33:22 | INFO     | cli.py | 📄 created file: test_web.py
+2025-10-06 09:33:22 | INFO     | cli.py | 🎉 Project 'myweb' created successfully.
+2025-10-06 09:33:22 | INFO     | cli.py | 👉 Go to the project folder and run 'pytest' to start testing.
 ```
 
 * 创建api自动化测试项目。
@@ -81,13 +85,38 @@ $ lounger -pw myweb
 ```shell
 $ lounger -pa myapi
 
-2024-08-17 22:05:31 | INFO     | cli.py | Start to create new test project: myapi
-2024-08-17 22:05:31 | INFO     | cli.py | CWD: D:\github\seldomQA\lounger
+2025-10-06 09:34:08 | INFO     | cli.py | Start to create new test project: myapi
+2025-10-06 09:34:08 | INFO     | cli.py | CWD: D:\github\seldomQA\lounger
 
-2024-08-17 22:05:31 | INFO     | cli.py | created folder: myapi
-2024-08-17 22:05:31 | INFO     | cli.py | created folder: myapi\reports
-2024-08-17 22:05:31 | INFO     | cli.py | created file: myapi\test_api.py
-2024-08-17 22:05:31 | INFO     | cli.py | created file: myapi\pytest.ini
+2025-10-06 09:34:08 | INFO     | cli.py | 📁 created folder: reports
+2025-10-06 09:34:08 | INFO     | cli.py | 📄 created file: pytest.ini
+2025-10-06 09:34:08 | INFO     | cli.py | 📄 created file: conftest.py
+2025-10-06 09:34:08 | INFO     | cli.py | 📄 created file: test_api.py
+2025-10-06 09:34:08 | INFO     | cli.py | 🎉 Project 'myapi' created successfully.
+2025-10-06 09:34:08 | INFO     | cli.py | 👉 Go to the project folder and run 'pytest' to start testing.
+```
+
+* 创建YAML格式的api自动化测试项目。
+
+> 注：通过YAML管理API测试用例，是为了降低非开发人员的使用门槛。
+
+👉 [阅读文档](./myyapi)
+
+```shell
+$ lounger -ya myyapi
+
+2025-10-06 09:35:21 | INFO     | cli.py | Start to create new test project: myyapi
+2025-10-06 09:35:21 | INFO     | cli.py | CWD: D:\github\seldomQA\lounger
+
+2025-10-06 09:35:21 | INFO     | cli.py | 📁 created folder: reports
+2025-10-06 09:35:21 | INFO     | cli.py | 📄 created file: conftest.py
+2025-10-06 09:35:21 | INFO     | cli.py | 📄 created file: test_api.py
+2025-10-06 09:35:21 | INFO     | cli.py | 📄 created file: config/config.yaml
+2025-10-06 09:35:21 | INFO     | cli.py | 📄 created file: datas/setup/login.yaml
+2025-10-06 09:35:21 | INFO     | cli.py | 📄 created file: datas/sample/test_case.yaml
+2025-10-06 09:35:21 | INFO     | cli.py | 📄 created file: datas/sample/test_req.yaml
+2025-10-06 09:35:21 | INFO     | cli.py | 🎉 Project 'myyapi' created successfully.
+2025-10-06 09:35:21 | INFO     | cli.py | 👉 Go to the project folder and run 'pytest' to start testing.
 ```
 
 * 直接运行测试
