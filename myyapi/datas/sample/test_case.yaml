@@ -8,8 +8,10 @@
           q: "selenium"
       validate:
         equal:
+          - [ "status_code", 200 ]
 - teststeps:
-    - presteps: setup/login.yaml
+    - presteps:
+        - setup/login.yaml
     - name: get user info
       request:
         method: GET
@@ -39,7 +41,7 @@
           Content-Type: application/json
           Authorization: ${extract(login_token)}
         json:
-          age: ${age_add($user_age, 1)}
+          age: ${age_add_one($user_age)}
           name: ${extract(user_name)}
           height: 173
       extract:

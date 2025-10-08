@@ -1,5 +1,5 @@
 - teststeps:
-    - name: a POST request
+    - name: user login api
       request:
         method: POST
         url: /login
@@ -7,11 +7,11 @@
         data:
           username: ${config(username)}
           password: ${config(password)}
-      extract: # 提取变量
+      extract:
         login_token: "data.token"  # 提取保存登录变量
-      validate: # 断言验证
-        equal: # 相等断言
+      validate:
+        equal:
           - [ "status_code", 200 ]
           - [ "body.code", 10200 ]
-        contains: # 包含断言
+        contains:
           - [ "body.message", "success" ]
