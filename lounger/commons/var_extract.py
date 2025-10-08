@@ -52,7 +52,6 @@ def save_var(resp: Any, data: Optional[Dict[str, str]]) -> None:
     :param data: Extraction parameters
     """
     if not data:
-        log.warning("API association variable extraction not set")
         return
 
     for key, value in data.items():
