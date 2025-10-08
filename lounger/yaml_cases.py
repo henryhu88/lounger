@@ -60,9 +60,11 @@ def load_test_cases() -> List[Tuple[str, List[Dict], str]]:
     :return: List of tuples (test_name, merged_steps, source_file)
     """
     testcases = []
-    project_root = os.path.abspath(os.path.dirname(os.path.dirname(get_case_path()[0])))  # Project root
+    case_paths = get_case_path()
 
-    for file_path in get_case_path():
+    project_root = os.path.abspath(os.path.dirname(os.path.dirname(case_paths[0])))  # Project root
+
+    for file_path in case_paths:
         file_path = os.path.abspath(file_path)
         filename = os.path.basename(file_path).rsplit(".", 1)[0]  # Remove extension safely
 
