@@ -55,25 +55,29 @@ def load_test_cases() -> List[Tuple[str, List[Dict], str]]:
     Load all test cases from YAML files.
 
     Each 'teststeps' block in a YAML file is treated as one test case.
-    If the first step is a 'presteps' directive, merge the referenced steps at the beginning.
+    If the first step contains a 'presteps' field with a list of file paths,
+    load and merge all steps from those files in order.
 
     :return: List of tuples (test_name, merged_steps, source_file)
     """
     testcases = []
     case_paths = get_case_path()
 
-    project_root = os.path.abspath(os.path.dirname(os.path.dirname(case_paths[0])))  # Project root
+    if not case_paths:
+        log.warning("No test case paths configured.")
+        return testcases
+
+    project_root = os.path.abspath(os.path.dirname(os.path.dirname(case_paths[0])))
 
     for file_path in case_paths:
         file_path = os.path.abspath(file_path)
-        filename = os.path.basename(file_path).rsplit(".", 1)[0]  # Remove extension safely
+        filename = os.path.basename(file_path).rsplit(".", 1)[0]
 
         test_data = read_yaml(file_path)
         if not test_data or not isinstance(test_data, list):
             log.warning(f"YAML file is empty or invalid structure: {file_path}")
             continue
 
-        # Process each 'teststeps' block in the file
         for idx, block in enumerate(test_data):
             if not isinstance(block, dict) or "teststeps" not in block:
                 continue
@@ -83,39 +87,57 @@ def load_test_cases() -> List[Tuple[str, List[Dict], str]]:
                 log.debug(f"Skipping empty teststeps block in {file_path}")
                 continue
 
-            # Determine if the first step is a 'presteps' directive
             merged_steps = raw_steps
-            has_presteps = (
-                    len(raw_steps) > 0 and
-                    isinstance(raw_steps[0], dict) and
-                    "presteps" in raw_steps[0]
-            )
+            first_step = raw_steps[0]
 
-            if has_presteps:
-                presteps_ref = raw_steps[0]["presteps"]
+            # Check if first step has 'presteps' and it's a list
+            if isinstance(first_step, dict) and "presteps" in first_step:
+                presteps_files = first_step["presteps"]
                 main_steps = raw_steps[1:]
 
-                # Resolve path relative to project root
-                presteps_path = os.path.normpath(os.path.join(project_root, presteps_ref))
+                if not isinstance(presteps_files, list):
+                    log.error(f"'presteps' must be a list in {file_path}, got {type(presteps_files).__name__}")
+                    continue
 
-                log.info(f"🔁 Loading pre-steps from: {presteps_ref}")
+                if len(presteps_files) == 0:
+                    log.debug(f"No presteps files specified in {file_path}")
+                    merged_steps = main_steps
+                else:
+                    presteps = []
+                    log.info(f"🔁 Loading pre-steps: {presteps_files}")
 
-                try:
-                    presteps = load_yaml_steps(presteps_path)
-                    merged_steps = presteps + main_steps
-                    log.info(f"✅ Merged {len(presteps)} pre-step(s) into test case")
-                except Exception as e:
-                    log.error(f"❌ Failed to load pre-steps '{presteps_ref}': {str(e)}")
-                    continue  # Skip this test case if pre-steps are missing/broken
+                    # Load each pre-steps file in order
+                    for rel_path in presteps_files:
+                        if not isinstance(rel_path, str):
+                            log.error(
+                                f"Invalid presteps item, expected string but got {type(rel_path).__name__}: {rel_path}")
+                            presteps = None
+                            break
 
-            # Generate test name using first actual step (after merge)
-            first_step = merged_steps[0] if merged_steps else {"name": "unnamed_step"}
-            step_name = first_step.get("name", f"step_1")
+                        full_path = os.path.normpath(os.path.join(project_root, rel_path))
+                        try:
+                            steps = load_yaml_steps(full_path)
+                            presteps.extend(steps)
+                            log.debug(f"✔️ Loaded {len(steps)} step(s) from '{rel_path}'")
+                        except Exception as e:
+                            log.error(f"❌ Failed to load pre-steps file '{rel_path}': {str(e)}")
+                            presteps = None
+                            break  # Stop on first failure
+
+                    if presteps is not None:
+                        merged_steps = presteps + main_steps
+                        log.info(f"✅ Merged {len(presteps)} pre-step(s) into test case")
+                    else:
+                        continue  # Skip this test case due to load failure
+
+            # Generate test name from first step after merge
+            first_step_after_merge = merged_steps[0] if merged_steps else {"name": "unnamed_step"}
+            step_name = first_step_after_merge.get("name", "step_1")
             test_name = f"{filename}::case_{idx + 1}_{step_name}"
 
             testcases.append((test_name, merged_steps, file_path))
 
-    # Final logging
+    # Final summary
     if not testcases:
         log.warning("No valid test cases loaded from YAML files.")
     else:

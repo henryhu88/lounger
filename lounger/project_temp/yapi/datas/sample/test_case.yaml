@@ -9,7 +9,8 @@
       validate:
         equal:
 - teststeps:
-    - presteps: setup/login.yaml
+    - presteps:
+        - setup/login.yaml
     - name: get user info
       request:
         method: GET
