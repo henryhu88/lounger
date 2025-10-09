@@ -131,31 +131,6 @@ global_test_config:
           - [ "status_code", 200 ]
 ```
 
-> 学习 requests库request()方法参数
-
-```python
-# requests库 request() 方法参数说明
-def request(
-        method,  # 请求方法，如 'GET', 'POST' 等
-        url,  # 请求地址（URL）
-        params=None,  # (可选) 字典或字节流，用于添加查询参数（query string）
-        data=None,  # (可选) 字典、元组列表、字节或文件对象，作为请求体发送
-        headers=None,  # (可选) HTTP 请求头字典
-        cookies=None,  # (可选) 字典或 CookieJar 对象，随请求发送
-        files=None,  # (可选) 文件字典，用于上传文件（multipart/form-data）
-        auth=None,  # (可选) 认证元组或可调用对象，用于 Basic/Digest/自定义认证
-        timeout=None,  # (可选) 超时时间，单位为秒（可为浮点数或 (连接, 读取) 元组）
-        allow_redirects=True,  # (可选) 是否允许重定向，默认为 True
-        proxies=None,  # (可选) 代理配置字典，指定协议或主机对应的代理地址
-        hooks=None,  # (可选) 钩子函数字典，如请求前后执行的回调
-        stream=None,  # (可选) 是否延迟下载响应内容，默认为 False（立即下载）
-        verify=None,  # (可选) 是否验证服务器 TLS 证书；True/False 或 CA 证书路径
-        cert=None,  # (可选) SSL 客户端证书路径，或 ('证书文件', '密钥文件') 元组
-        json=None,  # (可选) JSON 数据，作为请求体发送（自动设置 Content-Type）
-):
-    pass
-```
-
 * 主要运行文件：`test_api.py`
     * 项目的核心功能是通过`load_teststeps`解析并识别YAML文件中的`teststeps`测试用例，通过`execute_case()`方法执行。该文件默认不需要修改。
 
@@ -253,7 +228,7 @@ PASSED
 ==================================================== 2 passed in 0.15s ====================================================
 ```
 
-## 高级用法
+## 核心功能
 
 ### 场景测试&变量传递。
 
@@ -266,8 +241,8 @@ PASSED
         method: GET
         url: /id/1
       extract:
-  user_name: "data.name" # 提取接口返回数据，保存为变量user_name
-  user_age: "data.age" # 提取接口返回数据，保存为变量user_age
+        user_name: "data.name" # 提取接口返回数据，保存为变量user_name
+        user_age: "data.age" # 提取接口返回数据，保存为变量user_age
       validate:
         equal:
           - [ "status_code", 200 ]
@@ -424,3 +399,83 @@ def age_add_one(age):
         equal:
           - [ "status_code", 200 ]
 ```
+
+## 编写测试用例细节
+
+### 如何编写一个请求？
+
+YAML定义完全遵循 requests库的 `request()` 方法的参数，本质上也是基于这个方法去发送请求的。
+
+requests文档：https://requests.readthedocs.io/projects/cn/zh-cn/latest/
+
+> 学习 requests库request()方法参数
+
+```python
+# requests库 request() 方法参数说明
+def request(
+        method,  # 请求方法，如 'GET', 'POST' 等
+        url,  # 请求地址（URL）
+        params=None,  # (可选) 字典或字节流，用于添加查询参数（query string）
+        data=None,  # (可选) 字典、元组列表、字节或文件对象，作为请求体发送
+        headers=None,  # (可选) HTTP 请求头字典
+        cookies=None,  # (可选) 字典或 CookieJar 对象，随请求发送
+        files=None,  # (可选) 文件字典，用于上传文件（multipart/form-data）
+        auth=None,  # (可选) 认证元组或可调用对象，用于 Basic/Digest/自定义认证
+        timeout=None,  # (可选) 超时时间，单位为秒（可为浮点数或 (连接, 读取) 元组）
+        allow_redirects=True,  # (可选) 是否允许重定向，默认为 True
+        proxies=None,  # (可选) 代理配置字典，指定协议或主机对应的代理地址
+        hooks=None,  # (可选) 钩子函数字典，如请求前后执行的回调
+        stream=None,  # (可选) 是否延迟下载响应内容，默认为 False（立即下载）
+        verify=None,  # (可选) 是否验证服务器 TLS 证书；True/False 或 CA 证书路径
+        cert=None,  # (可选) SSL 客户端证书路径，或 ('证书文件', '密钥文件') 元组
+        json=None,  # (可选) JSON 数据，作为请求体发送（自动设置 Content-Type）
+):
+    pass
+```
+
+### 如何编写接口断言？
+
+假设一个接口返回格式如下：
+
+```json
+{
+  "code": 10200,
+  "data": { "age": 22, "id": 1, "name": "tom" },
+  "message": "success"
+}
+```
+
+编写测试用例，并增加断言。
+
+```yaml
+- teststeps:
+    - name: get user info
+      request:
+        method: GET
+        url: /id/1
+        headers:
+          Content-Type: application/json
+      validate:  # 断言
+        equal:   # 断言相等
+          - [ "status_code", 200 ]
+          - [ "body.code", 10200 ]
+        not_equal:  # 断言不相等
+          - [ "body.data.name", "jack" ]
+        contains:   # 断言包含
+          - [ "body.message", "succ" ]
+        not_contains:   # 断言不包含
+          - [ "body.message", "access" ]
+```
+
+* `status_code`： 表示HTTP 响应码
+* `body.xxx`: 表示从接口response中提取数据。
+
+### 如何提取变量？ 
+
+在编写用例的过程中，`extract` 需要提取变量，`validate` 断言也需要提取变量。 这里用的语法是JMESpath，为什么不用JSONpath ？ 
+
+JMESpath语法更简洁，用一套统一的标准，而且工能更强大。感兴趣让AI帮你生成语法对比示例，这里就不贴例子了。
+
+JMESpath文档： https://jmespath.org/specification.html
+
+
