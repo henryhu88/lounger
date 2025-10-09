@@ -1,19 +1,20 @@
-# 前言
+# lounger框架兼容YAPI管理API测试
 
-## 为什么要支持YAML管理API测试用例？
+## 前言
 
+### 为什么要支持YAML管理API测试用例？
 
 我曾经多次发表看法，对于用`YAML/JSON`文件管理API测试用例嗤之以鼻，因为`requests`、`httpx`等库已经足够简洁，而且上限很高，你可以在此基础上无限扩展它的能力。
-那些鼓吹通过`YAML/JSON`可以不写代码的框架，真的可以一行代码不写吗？稍微复杂一点的功能依然离不开代码，哪怕是
-postman/apifox等接口工具，不也依然支持写代码？既然都要写代码了，为何还要扭扭捏捏，遮遮掩掩。
+
+那些鼓吹通过`YAML/JSON`可以不写代码的框架，真的可以一行代码不写吗？稍微复杂一点的功能依然离不开代码，哪怕是`postman`/`apifox`等接口测试工具，不也依然支持写代码？既然都要写代码了，为何还要扭扭捏捏，遮遮掩掩，不如直接拥抱编程。
 
 那么，我为什么要在lounger框架中支持这种方案？
 
-1. 最近想明白了一个道理，存在即合理，一定有一部分测试工程师真的不太懂代码，从`YAML`配置文件开始接触接口自动化也未尝不可。
-2. 深入的研究一下，实现一个YAML测试文件的解释器的难度。
+1. 最近想明白了一个道理，存在即合理，一定有一部分测试工程师真的不太懂代码，从`YAML`文件开始接触接口自动化也未尝不可。
+2. 深入的研究一下，实现一个YAML测试文件的解释器的难度有多大。
+3. 想实现一个两者兼得的框架，同时支持YAML文件和code两种形式的测试。
 
-## 有哪些成熟的方案？
-
+### 有哪些成熟的方案？
 
 基于 pytest + YAML/JSON 的接口自动化测试项目：
 
@@ -23,12 +24,15 @@ postman/apifox等接口工具，不也依然支持写代码？既然都要写代
 * https://github.com/cdent/gabbi
 * https://gitee.com/yu_xiao_qi/pytest-auto-api2
 
-在造之前，我先参考了一些现有的方案。
-首先，`pytest-auto-api2`的设计非常Low，倒不是说功能不够强大，而是将框架代码和项目代码混杂到一起，连个版本管理都没有，就那么一大坨提供给用户，真的是面向不懂代码的测试工程师吗？
-然后，`httprunner.py`的设计最为优雅，主要是 `YAML/JSON` 的定义看上去既规范又齐全，所以在用例定义上我主要参考了它的API定义规范，但并没有直接参考它的实现源码。
+在造之前，我先调研了一些现有的方案。
 
-## 要实现哪些功能？
+首先，`pytest-auto-api2`的设计非常Low，倒不是说功能不够强大，而是将框架代码和项目代码混杂到一起，连个版本管理都没有，就那么一大坨提供给用户，真不知道目标用户的懂代码的还是不懂代码的测试工程师。
 
+然后，`httprunner.py`的设计最为优雅，主要是 `YAML/JSON` 的定义看上去既规范又齐全，所以在用例定义上我主要参考了它的API定义规范，但并没有直接参考它的实现源码。httprunner提供了一个命令行工具`hrp run xx.yaml`就是不懂不同代码的用户。
+
+我的目标，肯定不是第一种，但也不是第二种，希望初期的小白用户使用YAML编写API测试用例，可以过渡到通过代码编写用例，或者，简单的用例使用YAML编写，复杂的用例通过代码编写，反正，都是交给`pytest`框架运行。当然，这并不代表，我会把YAML形式的测试用例设计的非常弱鸡。
+
+### 要实现哪些功能？
 
 在设计之初，首先思考应该提供哪些功能。除了最基础的发送一个`GET`、`POST`请求、断言参数外，还应该支持：
 
@@ -39,9 +43,15 @@ postman/apifox等接口工具，不也依然支持写代码？既然都要写代
 
 如果可以完成上述功能，那么应该可以解决90%的接口自动化问题了。
 
-# lounger中编写YAML格式API测试
+## 编写YAML格式API测试
 
-## 通过脚手架快速创建测试项目
+首先，直接通过pip命令安装lounger框架。
+
+```shell
+pip install lounger
+```
+
+### 通过脚手架快速创建测试项目
 
 * 通过命令创建
 
@@ -78,12 +88,11 @@ $ lounger -ya myyapi
 └─test_api.py # 运行测试主文件
 ```
 
-## 项目基本使用
+### 项目基本配置
+
+#### 全局配置文件
 
 * 配置项目文件: `config/config.yaml`
-    * base_url: API的基础URL配置。
-    * test_project: 配置运行的目录，对应`datas`下面的测试目录，设置为`True`表示目录下的文件需要运行。
-    * global_test_config: 配置全局会用的一些变量。
 
 ```shell
 # 基础URL
@@ -100,10 +109,15 @@ global_test_config:
   password: a123456
 ```
 
+参数说明：
+
+* `base_url`: API的基础URL配置。
+* `test_project`: 配置运行的目录，对应`datas`下面的测试目录，设置为`True`表示目录下的文件需要运行。
+* `global_test_config`: 配置全局会用的一些变量。
+
+#### 测试用例基本格式
+
 * 编写简单的测试用例: `datas/sample/test_req.yaml`
-  * teststeps：定义测试用例，一个测试用例允许包含多个测试步骤（即多个接口调用）。
-  * request: 设置HTTP请求，完全遵循requests库的`request()`方法参数设置。
-  * validate: 定义请求断言。
 
 ```shell
 - teststeps:
@@ -131,8 +145,17 @@ global_test_config:
           - [ "status_code", 200 ]
 ```
 
+参数说明：
+
+* teststeps：定义测试用例，一个测试用例允许包含多个测试步骤（即多个接口调用）。
+* request: 设置HTTP请求，完全遵循requests库的`request()`方法参数命名。
+* validate: 定义接口返回值断言。
+
+#### 主运行文件
+
+> 既然要实现YAML管理测试用例，为什么还要提供这么个代码文件，其实所谓无代码，只是利用了pytest的参数化，测试用例通过YAML数据文件描述，最终交给 `@pytest.mark.parametrize()` 解析，然后，交由pytest运行， 在pytest看来，这就是一个使用参数化的测试用例。此外，这里相当于留了个口子，如果不懂代码，只运行这个文件就完了，如果有兴趣一探究竟，可以研究`@load_teststeps()`装饰器是如何识别和加载用例的，`execute_case()`又是如何执行用例的。
+
 * 主要运行文件：`test_api.py`
-    * 项目的核心功能是通过`load_teststeps`解析并识别YAML文件中的`teststeps`测试用例，通过`execute_case()`方法执行。该文件默认不需要修改。
 
 ```python
 # test_api.py
@@ -158,7 +181,9 @@ def test_api(test_name: str, teststeps: List[Dict], file_path: str):
         execute_case(step)
 ```
 
-* 运行测试
+### 运行测试
+
+最后，就是运行测试用例，就是使用 `pytest` 命令，所以100%兼容pytest的参数。
 
 ```shell
 pytest -vs test_api.py
@@ -230,7 +255,7 @@ PASSED
 
 ## 核心功能
 
-### 场景测试&变量传递。
+### 场景测试&变量传递
 
 在场景测试中，我们往往需要将A接口的返回值提取出来，作为B接口的参数。
 
@@ -264,17 +289,21 @@ PASSED
           - [ "status_code", 200 ]
 ```
 
-### 支持全局变量配置。
+### 支持全局变量配置
 
-支持读取`config/config.yaml`中的全局配置。
+首先，在`config/config.yaml`文件中配置全局变量。
 
 ```yaml
 # config/config.yaml
+...
+
 # 全局测试变量
 global_test_config:
   username: admin
   password: a123456
 ```
+
+然后，在测试用例中引用全局变量。
 
 ```yaml
 # datas/setup/login.yaml
@@ -292,20 +321,16 @@ global_test_config:
       validate:
         equal:
           - [ "status_code", 200 ]
-          - [ "body.code", 10200 ]
-        contains:
-          - [ "body.message", "success" ]
 ```
 
 ### 支持前置步骤
 
-在场景测试中，往往需要支持前置接口调用。
+在场景测试中，往往需要多个前置口的调用。例如，执行C接口，要先调用A接口和B接口。
 
 首先，创建一个login.yaml接口调用。
 
 ```yaml
 # datas/setup/login.yaml
-
 - teststeps:
     - name: user login api
       request:
@@ -320,9 +345,6 @@ global_test_config:
       validate:
         equal:
           - [ "status_code", 200 ]
-          - [ "body.code", 10200 ]
-        contains:
-          - [ "body.message", "success" ]
 ```
 
 然后，在测试用例中引用`login.yaml`文件。
@@ -330,7 +352,7 @@ global_test_config:
 ```yaml
 - teststeps:
     - presteps:
-        - setup/login.yaml # 引用 login.yaml 作为前置动作。
+        - setup/login.yaml # 引用 login.yaml 作为前置接口。
     - name: get user info
       request:
         method: GET
@@ -347,7 +369,7 @@ global_test_config:
           - [ "status_code", 200 ]
 ```
 
-presteps支持多个前置步骤编排。
+注意：`presteps` 支持多个前置步骤编排。
 
 ```yaml
     - presteps:
@@ -358,7 +380,8 @@ presteps支持多个前置步骤编排。
 
 ### 支持自定义函数
 
-在实际的测试过程中，一些数据往往需要完成一些复杂的计算，例如`日期`、`加密`等。
+在实际的测试过程中，一些数据需要通过一些复杂的计算生成，例如`日期`、`加密`等。
+
 借助于`conftest.py`文件可以定义任意计算函数。
 
 ```python
@@ -404,7 +427,7 @@ def age_add_one(age):
 
 ### 如何编写一个请求？
 
-YAML定义完全遵循 requests库的 `request()` 方法的参数，本质上也是基于这个方法去发送请求的。
+YAML定义完全遵循`requests`库的 `request()` 方法的参数，本质上也是基于这个方法去发送请求的。
 
 requests文档：https://requests.readthedocs.io/projects/cn/zh-cn/latest/
 
@@ -433,7 +456,31 @@ def request(
     pass
 ```
 
-### 如何编写接口断言？
+对应的 YAML 的定义如下
+
+```yaml
+- teststeps:
+    - name: get user info
+      request:
+        method: GET
+        url: /id/1
+        headers:
+        params:
+        data:
+        headers:
+        cookies:
+        auth:
+        timeout:
+        allow_redirects:
+        stream:
+        verify:
+        json:
+      validate:
+        equal:
+          - [ "status_code", 200 ]
+```
+
+### 如何编写接口断言?
 
 假设一个接口返回格式如下：
 
@@ -470,12 +517,46 @@ def request(
 * `status_code`： 表示HTTP 响应码
 * `body.xxx`: 表示从接口response中提取数据。
 
-### 如何提取变量？ 
+### 如何提取变量?
 
-在编写用例的过程中，`extract` 需要提取变量，`validate` 断言也需要提取变量。 这里用的语法是JMESpath，为什么不用JSONpath ？ 
+在编写用例的过程中，`extract` 需要提取变量，`validate` 断言也需要提取变量。 这里用的语法是JMESpath，为什么不用JSONpath？
 
-JMESpath语法更简洁，用一套统一的标准，而且工能更强大。感兴趣让AI帮你生成语法对比示例，这里就不贴例子了。
+**JMESpath语法更简洁，用一套统一的标准，而且工能更强大。感兴趣让AI帮你生成语法对比示例，这里就不贴例子了。**
 
-JMESpath文档： https://jmespath.org/specification.html
+JMESpath文档：https://jmespath.org/specification.html
 
+## 如何兼容两种形式的用例
 
+假设，你们团队有两波人，一波人只学会了用YAML编写用例，另一波人会用代码写用例。那么如何在一个项目中兼容两种形式。
+
+```shell
+├─config
+│  ├─config.yaml
+├─datas # 用YAML写用例
+│  ├─sample
+│  │   ├─test_req.yaml
+├─test_dir # 用code写用例
+│  ├─test_req.py
+├─reports
+├─conftest.py # pytest运行配置文件
+└─test_api.py # 运行测试主文件
+```
+
+* 通过pytest命令执行
+
+```shell
+pytest --html=reports\\result.html
+====================================== test session starts ======================================
+
+test_api.py ..                                              [ 50%]
+test_dir\test_req.                                          [100%]
+
+--------Generated html report: file:///D:/github/seldomQA/lounger/myyapi/reports/result.html --------
+======================================= 4 passed in 0.19s =======================================
+```
+
+* 查看测试报告
+
+![result](result.png)
+
+通过运行方式日志和测试报告可以看到，两者可以毫无违和感的一起执行。
