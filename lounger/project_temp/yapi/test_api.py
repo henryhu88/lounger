@@ -9,7 +9,7 @@ from lounger.yaml_cases import load_teststeps
 @load_teststeps()
 def test_api(test_name: str, teststeps: List[Dict], file_path: str):
     """
-    Execute a test case defined by a 'teststeps' block.
+    Execute the 'teststeps' test case in YAML.
     """
     log.info(f"✅ Starting test case: {test_name}")
     log.info(f"📁 Source file: {file_path}")
