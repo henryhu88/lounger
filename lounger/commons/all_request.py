@@ -50,7 +50,8 @@ class AllRequests:
 
             # Add content type for JSON requests
             if "json" in kwargs:
-                kwargs.setdefault("headers", {}).update({"Content-Type": "application/json"})
+                kwargs['headers'] = kwargs.get('headers') or {}
+                kwargs['headers'].setdefault('Content-Type', 'application/json')
 
             # Get method and URL
             method = kwargs.pop("method", "GET").upper()
