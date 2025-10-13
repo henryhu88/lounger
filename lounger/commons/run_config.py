@@ -1,4 +1,5 @@
 import glob
+import os
 from pathlib import Path
 from typing import List, Tuple
 
@@ -57,12 +58,29 @@ def get_case_path() -> List[str]:
             log.warning("No projects configured for testing")
             return []
 
-        # If all supported projects need to be tested, return all test cases
-        if len(need_test_projects) >= len(project_name_list):
-            return glob.glob("datas/**/*.yaml", recursive=True)
+        # Get execute YAML files
+        valid_need_projects = [proj for proj in need_test_projects if proj in project_name_list]
+        all_paths = _get_specific_test_cases(valid_need_projects, project_name_list)
 
-        case_path = _get_specific_test_cases(need_test_projects, project_name_list)
-        return case_path
+        # === Sort: global_setup | normal | global_teardown ===
+        setup_paths = []
+        teardown_paths = []
+        normal_paths = []
+
+        for path in all_paths:
+            abs_path = os.path.abspath(path)
+            norm_path = abs_path.replace("/", os.sep).lower()
+
+            if "global_setup" in norm_path:
+                setup_paths.append(abs_path)
+            elif "global_teardown" in norm_path:
+                teardown_paths.append(abs_path)
+            else:
+                normal_paths.append(abs_path)
+
+        sorted_paths = setup_paths + normal_paths + teardown_paths
+
+        return sorted_paths
     except Exception as e:
         log.error(f"Failed to get test case paths: {e}")
         return []
