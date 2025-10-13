@@ -81,7 +81,7 @@ def _get_specific_test_cases(
     case_paths = []
 
     for project_name in need_test_projects:
-        if project_name in supported_projects and project_name != 'single_file':
+        if project_name in supported_projects:
             # Get all test cases under the specified project
             project_cases = [
                 str(path.as_posix())
