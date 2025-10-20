@@ -1,14 +1,25 @@
 import glob
 import os
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 from lounger.log import log
 from lounger.utils.config_utils import ConfigUtils
+from lounger.utils.hot_loads import ExtractVar
 
 CONFIG_FILE = ConfigUtils("config/config.yaml")
 TEST_PROJECTS = CONFIG_FILE.get_config("test_project")
 BASE_URL = CONFIG_FILE.get_config("base_url")
+
+
+def global_test_config(key: str) -> Any:
+    """
+    get global test config
+    param: key
+    """
+    var = ExtractVar()
+    value = var.config(key)
+    return value
 
 
 def get_project_config() -> Tuple[List[str], List[str]]:
