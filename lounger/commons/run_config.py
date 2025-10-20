@@ -1,4 +1,3 @@
-import glob
 import os
 from pathlib import Path
 from typing import List, Tuple, Any
@@ -25,7 +24,7 @@ def global_test_config(key: str) -> Any:
 def get_project_config() -> Tuple[List[str], List[str]]:
     """
     Get project run configuration to determine which projects need to be tested
-    
+
     :return: Tuple containing two lists: projects to test and projects to skip
     """
     # Store projects that need to be tested
@@ -46,7 +45,7 @@ def get_project_config() -> Tuple[List[str], List[str]]:
 def get_project_name() -> List[str]:
     """
     Get list of project names from the test project configuration.
-    
+
     :return: List of project names
     """
     # Extract project names from the test project configuration keys
@@ -115,31 +114,9 @@ def _get_specific_test_cases(
             project_cases = [
                 str(path.as_posix())
                 for path in Path("datas", project_name).rglob("*.yaml")
+                if path.stem.startswith("test_") or path.stem.endswith("_test")
             ]
-        else:
-            # Custom file or file list
-            project_cases = _get_custom_cases(project_name)
 
-        case_paths.extend(project_cases)
-
-    return case_paths
-
-
-def _get_custom_cases(case_specification: str) -> List[str]:
-    """
-    Get custom test cases
-
-    :param case_specification: Case specification, can be a single file name or comma-separated file names
-    """
-    case_paths = []
-    case_name = CONFIG_FILE.get_config("test_project", case_specification)
-
-    # Handle multiple files separated by commas
-    case_names = [name.strip() for name in case_name.split(",")]
-
-    for case_name in case_names:
-        if case_name:  # Ensure it's not empty
-            file_cases = glob.glob(f"datas/**/{case_name}.yaml", recursive=True)
-            case_paths.extend(file_cases)
+            case_paths.extend(project_cases)
 
     return case_paths
