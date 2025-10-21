@@ -12,10 +12,9 @@ from lounger import __version__
 
 @click.command()
 @click.version_option(version=__version__, help="Show version.")
-@click.option("-pw", "--project-web", help="Create an web automation test project.")
-@click.option("-pa", "--project-api", help="Create an api automation test project.")
-@click.option("-ya", "--yaml-api", help="Create an YAML api automation test project.")
-def main(project_web, project_api, yaml_api):
+@click.option("-pw", "--project-web", help="Create an Web automation test project.")
+@click.option("-pa", "--project-api", help="Create an API automation test project.")
+def main(project_web, project_api):
     """
     lounger CLI.
     """
@@ -26,10 +25,6 @@ def main(project_web, project_api, yaml_api):
 
     if project_api:
         create_scaffold(project_api, "api")
-        return 0
-
-    if yaml_api:
-        create_scaffold(yaml_api, "yapi")
         return 0
 
     return None
@@ -63,52 +58,27 @@ def create_scaffold(project_name: str, type: str) -> None:
     (project_root / "reports").mkdir(exist_ok=True)
     log.info("📁 created folder: reports")
 
-    # Define pytest.ini content
-    ini_content = {
-        "api": '''[pytest]
-log_format = %(asctime)s | %(levelname)-8s | %(filename)s | %(message)s
-log_date_format = %Y-%m-%d %H:%M:%S
-base_url = https://httpbin.org
-addopts = -s --html=./reports/result.html
-''',
-        "web": '''[pytest]
-log_format = %(asctime)s | %(levelname)-8s | %(filename)s | %(message)s
-log_date_format = %Y-%m-%d %H:%M:%S
-base_url = https://cn.bing.com
-addopts = -s --browser=chromium --headed --html=./reports/result.html
-'''
-    }
+    # Define Add conftest.py (shared)
+    file_mappings = [(template_base / "conftest.py", "conftest.py")]
 
-    # Write pytest.ini
-    if type == "api" or type == "web":
-        content = ini_content[type]
-        (project_root / "pytest.ini").write_text(content, encoding="utf-8")
-        log.info("📄 created file: pytest.ini")
-
-    # Define file mappings: (source, destination relative to project_root)
-    file_mappings = []
-
-    # Add conftest.py (shared)
-    conftest_src = template_base / "conftest.py"
-    file_mappings.append((conftest_src, "conftest.py"))
-
-    if type == "api":
-        file_mappings.append((template_base / "test_api.py", "test_api.py"))
-
-    elif type == "web":
-        file_mappings.append((template_base / "test_web.py", "test_web.py"))
-
-    elif type == "yapi":
-        # Main test file and config
+    if type == "web":
         file_mappings.extend([
-            (template_base / "yapi" / "test_api.py", "test_api.py"),
-            (template_base / "yapi" / "config" / "config.yaml", "config/config.yaml"),
-            (template_base / "yapi" / "datas" / "setup" / "login.yaml", "datas/setup/login.yaml"),
-            (template_base / "yapi" / "datas" / "sample" / "test_case.yaml", "datas/sample/test_case.yaml"),
-            (template_base / "yapi" / "datas" / "sample" / "test_req.yaml", "datas/sample/test_req.yaml"),
+            (template_base / "web" / "pytest.ini", "pytest.ini"),
+            (template_base / "__init__.py", "test_dir/__init__.py"),
+            (template_base / "web" / "test_dir" / "test_sample.py", "test_dir/test_sample.py")
+        ])
+
+    elif type == "api":
+        file_mappings.extend([
+            (template_base / "api" / "pytest.ini", "pytest.ini"),
+            (template_base / "api" / "test_api.py", "test_api.py"),
+            (template_base / "api" / "config" / "config.yaml", "config/config.yaml"),
+            (template_base / "api" / "datas" / "sample" / "test_sample.yaml", "datas/sample/test_sample.yaml"),
+            (template_base / "__init__.py", "test_dir/__init__.py"),
+            (template_base / "api" / "test_dir" / "test_sample.py", "test_dir/test_sample.py"),
         ])
     else:
-        log.error(f"Unsupported project type: {type}. Choose from 'api', 'web', 'yapi'.")
+        log.error(f"Unsupported project type: {type}. Choose from 'api', 'web'.")
         return
 
     # Copy all template files

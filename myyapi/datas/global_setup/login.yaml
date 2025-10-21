@@ -1,5 +1,5 @@
 - teststeps:
-    - name: user login API
+    - name: user login api
       request:
         method: POST
         url: /login
