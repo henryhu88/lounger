@@ -3,8 +3,8 @@ from typing import Dict, Any
 import requests
 from pytest_req.plugin import Session
 
-from lounger.commons.run_config import BASE_URL
 from lounger.log import log
+from lounger.utils.config_utils import ConfigUtils
 
 
 class AllRequests:
@@ -14,7 +14,9 @@ class AllRequests:
 
     def __init__(self):
         """Initialize the HTTP client with base URL"""
-        self._session = Session(BASE_URL)
+        config_file = ConfigUtils("config/config.yaml")
+        base_url = config_file.get_config("base_url")
+        self._session = Session(base_url)
 
     @staticmethod
     def _files_load(files_dict: Dict[str, str]) -> Dict[str, Any]:

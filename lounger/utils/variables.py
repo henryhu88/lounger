@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from lounger.log import log
+from lounger.utils.config_utils import ConfigUtils
 
 
 class ExtractVar:
@@ -19,7 +20,9 @@ class ExtractVar:
         return cls._instance
 
     def _load_conftest_functions(self):
-        """Load the conftest function only once"""
+        """
+        Load the conftest function only once
+        """
         conftest_path = Path("conftest.py")
         if not conftest_path.exists():
             log.debug("No conftest.py found, skip loading custom functions.")
@@ -44,7 +47,6 @@ class ExtractVar:
         Extract from the config file
         :param key:
         """
-        from lounger.utils.config_utils import ConfigUtils
         config_utils = ConfigUtils("config/config.yaml")
         base_config = config_utils.get_config('global_test_config')
         try:

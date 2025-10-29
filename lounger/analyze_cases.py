@@ -4,7 +4,7 @@ from typing import Any, Optional, List, Tuple, Dict
 import pytest
 import yaml
 
-from lounger.commons.run_config import get_case_path
+from lounger.commons.load_config import LoadConfig
 from lounger.log import log
 
 
@@ -61,7 +61,8 @@ def load_test_cases() -> List[Tuple[str, List[Dict], str]]:
     :return: List of tuples (test_name, merged_steps, source_file)
     """
     testcases = []
-    case_paths = get_case_path()
+    lf = LoadConfig()
+    case_paths = lf.get_case_path()
 
     if not case_paths:
         log.warning("No test case paths configured.")

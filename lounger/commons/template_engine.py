@@ -3,7 +3,7 @@ from typing import Dict, Any
 
 from lounger.log import log
 from lounger.utils import cache
-from lounger.utils.hot_loads import ExtractVar
+from lounger.utils.variables import ExtractVar
 
 # Precompile regex pattern for performance
 TEMPLATE_PATTERN = re.compile(r"\$\{(.*?)\((.*?)\)}")
