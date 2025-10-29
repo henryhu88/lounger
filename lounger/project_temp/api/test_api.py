@@ -1,9 +1,9 @@
 # test_api.py
 from typing import List, Dict
 
+from lounger.analyze_cases import load_teststeps
 from lounger.case import execute_case
 from lounger.log import log
-from lounger.yaml_cases import load_teststeps
 
 
 @load_teststeps()
