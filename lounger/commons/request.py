@@ -7,13 +7,15 @@ from lounger.log import log
 from lounger.utils.config_utils import ConfigUtils
 
 
-class AllRequests:
+class RequestClient:
     """
-    HTTP client wrapper for handling all API requests
+    HTTP client wrapper for handling API request
     """
 
     def __init__(self):
-        """Initialize the HTTP client with base URL"""
+        """
+        Initialize the HTTP client with base URL
+        """
         config_file = ConfigUtils("config/config.yaml")
         base_url = config_file.get_config("base_url")
         self._session = Session(base_url)
@@ -82,4 +84,4 @@ class AllRequests:
 
 
 # Create a singleton instance of the request client
-request_client = AllRequests()
+request_client = RequestClient()

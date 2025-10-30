@@ -2,11 +2,11 @@ from typing import Dict, Any
 
 import pytest
 
-from lounger.commons.all_request import request_client
 from lounger.commons.assert_result import api_validate
+from lounger.commons.extract import extract_var
 from lounger.commons.model import verify_model
+from lounger.commons.request import request_client
 from lounger.commons.template_engine import template_replace
-from lounger.commons.var_extract import save_var
 from lounger.log import log
 
 
@@ -30,7 +30,7 @@ def execute_case(case_step: Dict[str, Any]) -> None:
         resp = request_client.send_request(**processed_case["request"])
 
         # Code for variable extraction and API validation is commented out
-        save_var(resp, processed_case.get("extract"))
+        extract_var(resp, processed_case.get("extract"))
         api_validate(resp, processed_case.get("validate"))
 
     except Exception as e:
