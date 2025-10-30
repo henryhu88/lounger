@@ -10,6 +10,7 @@ class Model:
 
     name: str
     request: Dict[str, Any]
+    sleep: int = None
     extract: Optional[Dict[str, Any]] = None
     validate: Optional[Dict[str, Any]] = None
 

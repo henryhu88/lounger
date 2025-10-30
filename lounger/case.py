@@ -1,3 +1,4 @@
+from time import sleep
 from typing import Dict, Any
 
 import pytest
@@ -28,6 +29,12 @@ def execute_case(case_step: Dict[str, Any]) -> None:
 
         # Send request
         resp = request_client.send_request(**processed_case["request"])
+
+        # sleep
+        sec = processed_case.get("sleep", 0)
+        if sec != 0:
+            log.info(f"💤 sleep: {sec}s")
+            sleep(sec)
 
         # Code for variable extraction and API validation is commented out
         extract_var(resp, processed_case.get("extract"))
