@@ -1,8 +1,8 @@
 from typing import Dict, Any, Optional
 
 import requests
+from pytest_req.utils import jmespath
 
-from lounger.libs import jmespath
 from lounger.log import log
 
 # Assertion types

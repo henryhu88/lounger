@@ -1,7 +1,8 @@
 import copy
 from typing import Dict, Any, Optional
 
-from lounger.libs import jmespath
+from pytest_req.utils.jmespath import jmespath
+
 from lounger.log import log
 from lounger.utils.cache import cache
 
@@ -41,7 +42,7 @@ def extract_var(resp: Any, expr_or_data: Optional[Dict[str, str]]) -> None:
     if isinstance(resp_json, dict):
         for key, expr in expr_or_data.items():
             try:
-                result = jmespath.search(expr, resp_json)
+                result = jmespath(resp_json, expr)
                 if result is None:
                     log.warning(f"Extracted variable is None: name={key}, expression={expr}")
                     continue
