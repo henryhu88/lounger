@@ -11,9 +11,28 @@ from lounger.commons.template_engine import template_replace
 from lounger.log import log
 
 
-def execute_case(case_step: Dict[str, Any]) -> None:
+def execute_teststeps(teststeps: Dict) -> None:
     """
-    Execute a test case
+    execute the test steps
+    :param teststeps
+    """
+    test_name = teststeps["name"]
+    test_steps = teststeps["steps"]
+    file_path = teststeps["file"]
+
+    log.info(f"✅ Starting test case: {test_name}")
+    log.info(f"📁 Source file: {file_path}")
+    log.info(f"🔧 Contains {len(test_steps)} step(s)")
+
+    for i, step in enumerate(test_steps):
+        step_name = step.get("name", f"step_{i + 1}")
+        log.info(f"🔹 Executing step {i + 1}/{len(teststeps)}: {step_name}")
+        execute_step(step)
+
+
+def execute_step(case_step: Dict[str, Any]) -> None:
+    """
+    Execute a test step
     
     :param case_step: Test case step
     :return: None

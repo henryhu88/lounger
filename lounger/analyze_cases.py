@@ -153,8 +153,13 @@ def load_teststeps():
     Loads test cases and returns pytest.mark.parametrize with proper args and IDs.
     """
     cases = load_test_cases()
+    parametrized_cases = [
+        {"name": name, "steps": steps, "file": file_path}
+        for name, steps, file_path in cases
+    ]
+
     return pytest.mark.parametrize(
-        "test_name, teststeps, file_path",
-        cases,
-        ids=[tc[0] for tc in cases]  # Use test_name as display ID in pytest
+        "teststeps",  # ← 单个参数名
+        parametrized_cases,
+        ids=[case["name"] for case in parametrized_cases]
     )
