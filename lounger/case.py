@@ -61,7 +61,7 @@ def execute_step(case_step: Dict[str, Any]) -> None:
             resp = centrifuge_manager.send_centrifuge(**processed_case["centrifuge"])
         elif case_step.get("request"):
             # Send request
-            from lounger.commons.request import request_client
+            from lounger.request import request_client
             resp = request_client.send_request(**processed_case["request"])
         else:
             raise TypeError("Currently, only WebSocket and HTTP (request) protocols are supported.")
