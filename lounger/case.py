@@ -6,8 +6,6 @@ import time
 from pathlib import Path
 from typing import Dict, Any
 
-import pytest
-
 from lounger.commons.assert_result import api_validate
 from lounger.commons.extract import extract_var
 from lounger.commons.model import verify_model
@@ -50,31 +48,27 @@ def execute_step(case_step: Dict[str, Any]) -> None:
     step_name = case_step.get('name')
     log.info(f"Executing test step: {step_name}")
 
-    try:
-        # Verify model and replace templates
-        validated_case = verify_model(case_step)
-        processed_case = template_replace(validated_case)
+    # Verify model and replace templates
+    validated_case = verify_model(case_step)
+    processed_case = template_replace(validated_case)
 
-        if case_step.get("centrifuge"):
-            # New Send centrifuge
-            from lounger.centrifuge import centrifuge_manager
-            resp = centrifuge_manager.send_centrifuge(**processed_case["centrifuge"])
-        elif case_step.get("request"):
-            # Send request
-            from lounger.request import request_client
-            resp = request_client.send_request(**processed_case["request"])
-        else:
-            raise TypeError("Currently, only WebSocket and HTTP (request) protocols are supported.")
+    if case_step.get("centrifuge"):
+        # New Send centrifuge
+        from lounger.centrifuge import centrifuge_manager
+        resp = centrifuge_manager.send_centrifuge(**processed_case["centrifuge"])
+    elif case_step.get("request"):
+        # Send request
+        from lounger.request import request_client
+        resp = request_client.send_request(**processed_case["request"])
+    else:
+        raise TypeError("Currently, only WebSocket and HTTP (request) protocols are supported.")
 
-        # Sleep if a sleep duration is specified
-        if sleep_sec := case_step.get("sleep"):
-            time.sleep(sleep_sec)
-        # Code for variable extraction and API validation is commented out
-        extract_var(resp, processed_case.get("extract"))
-        api_validate(resp, processed_case.get("validate"))
-
-    except Exception as e:
-        pytest.fail(f"❌ Test case execution failed: {str(e)}")
+    # Sleep if a sleep duration is specified
+    if sleep_sec := case_step.get("sleep"):
+        time.sleep(sleep_sec)
+    # Code for variable extraction and API validation is commented out
+    extract_var(resp, processed_case.get("extract"))
+    api_validate(resp, processed_case.get("validate"))
 
 
 def execute_teststeps(teststeps: Dict) -> None:
