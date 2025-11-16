@@ -159,7 +159,7 @@ def load_teststeps():
     ]
 
     return pytest.mark.parametrize(
-        "teststeps",  # ← 单个参数名
+        "teststeps",
         parametrized_cases,
         ids=[case["name"] for case in parametrized_cases]
     )

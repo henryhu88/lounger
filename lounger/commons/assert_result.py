@@ -7,13 +7,17 @@ from lounger.log import log
 
 # Assertion types
 ASSERT_TYPES: dict = {
-    # assertion_type: expects (expected, actual) -> bool
-    "equal": lambda expect, actual: expect == actual,  # Assert equality
-    "not_equal": lambda expect, actual: expect != actual,  # Assert inequality
-    "contains": lambda expect, actual: expect in actual,  # Assert that actual contains expected
-    "not_contains": lambda expect, actual: expect not in actual,  # Assert that actual does not contain expected
-    "type": lambda expect, actual: type(expect) == type(actual),  # Assert data type match
-    "length": lambda expect, actual: int(expect) == len(actual),  # Assert length match
+    # assertion_type: expects (actual, expected) -> bool
+    "equal": lambda actual, expected: actual == expected,  # Assert equality
+    "not_equal": lambda actual, expected: actual != expected,  # Assert inequality
+    "contains": lambda actual, expected: expected in actual,  # Assert that actual contains expected
+    "not_contains": lambda actual, expected: expected not in actual,  # Assert that actual does not contain expected
+    "type": lambda actual, expected: type(actual) == type(expected),  # Assert data type match
+    "length": lambda actual, expected: len(actual) == int(expected),  # Assert length match
+    "greater": lambda actual, expected: actual > expected,  # Assert greater than
+    "greater_equal": lambda actual, expected: actual >= expected,  # Assert greater than or equal to
+    "less": lambda actual, expected: actual < expected,  # Assert less than
+    "less_equal": lambda actual, expected: actual <= expected,  # Assert less than or equal to
 }
 
 
@@ -34,18 +38,20 @@ def _get_actual_value(resp: requests.Response, expr: str):
                 "headers.Content-Type",
                 "body.code", or "data.name"
     """
-    if expr == "status_code":
-        return resp.status_code
-    elif expr.startswith("headers."):
-        header_key = expr[8:]
-        return resp.headers.get(header_key)
-    elif expr.startswith("body."):
-        jmes_expr = expr[5:]
-        json_data = resp.json()
-        return jmespath.jmespath(json_data, jmes_expr)
+    if isinstance(expr, str):
+        if expr == "status_code":
+            return resp.status_code
+        elif expr.startswith("headers."):
+            header_key = expr[8:]
+            return resp.headers.get(header_key)
+        elif expr.startswith("body."):
+            jmes_expr = expr[5:]
+            json_data = resp.json()
+            return jmespath.jmespath(json_data, jmes_expr)
+        else:
+            return expr
     else:
-        json_data = resp.json()
-        return jmespath.jmespath(json_data, expr)
+        return expr
 
 
 def api_validate(resp: requests.Response, validate_value: Optional[Dict[str, Any]]) -> None:
@@ -61,6 +67,7 @@ def api_validate(resp: requests.Response, validate_value: Optional[Dict[str, Any
             "not_contains": [["body.message", "access"]]
         }
     """
+
     if not validate_value:
         return
 
@@ -79,15 +86,29 @@ def api_validate(resp: requests.Response, validate_value: Optional[Dict[str, Any
             expr, expected = item
             actual = _get_actual_value(resp, expr)
             assert_func = ASSERT_TYPES[assert_type]
-            result = assert_func(expected, actual)
+            result = assert_func(actual, expected)
+
+            # Map assertion types to their respective operators for clearer logging
+            operator_map = {
+                "equal": "==",
+                "not_equal": "!=",
+                "contains": "contains",
+                "not_contains": "not contains",
+                "greater": ">",
+                "greater_equal": ">=",
+                "less": "<",
+                "less_equal": "<="
+            }
 
             if result:
                 if assert_type == "length":
                     log.info(
-                        f"[{assert_type}] assertion passed: expr={expr}, expected={expected}, actual_length={len(actual)}")
+                        f"✅ assertion {assert_type} passed: [{expr}] {len(actual)} == {expected}")
                 else:
-                    log.info(f"[{assert_type}] assertion passed: expr={expr}, expected={expected}, actual={actual}")
+                    operator = operator_map.get(assert_type, assert_type)
+                    log.info(f"✅ assertion {assert_type} passed: [{expr}] {actual} {operator} {expected}")
             else:
-                log.error(f"[{assert_type}] assertion failed: expr={expr}, expected={expected}, actual={actual}")
-                raise AssertionError(
-                    f"[{assert_type}] assertion failed: {expr} → expected {expected}, got {actual}")
+                operator = operator_map.get(assert_type, assert_type)
+                error_msg = f"❌ assertion {assert_type} failed: [{expr}] {actual} {operator} {expected}"
+                log.error(error_msg)
+                raise AssertionError(error_msg)
