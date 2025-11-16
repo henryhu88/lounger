@@ -85,6 +85,8 @@ def api_validate(resp: requests.Response, validate_value: Optional[Dict[str, Any
 
             expr, expected = item
             actual = _get_actual_value(resp, expr)
+            if actual is None:
+                raise AssertionError(f"❓ Please check the JMESPath expression -> {expr}.")
             assert_func = ASSERT_TYPES[assert_type]
             result = assert_func(actual, expected)
 
@@ -109,6 +111,9 @@ def api_validate(resp: requests.Response, validate_value: Optional[Dict[str, Any
                     log.info(f"✅ assertion {assert_type} passed: [{expr}] {actual} {operator} {expected}")
             else:
                 operator = operator_map.get(assert_type, assert_type)
-                error_msg = f"❌ assertion {assert_type} failed: [{expr}] {actual} {operator} {expected}"
+                if assert_type == "length":
+                    error_msg = f"❌ assertion {assert_type} failed: [{expr}] {len(actual)} != {expected}"
+                else:
+                    error_msg = f"❌ assertion {assert_type} failed: [{expr}] {actual} {operator} {expected}"
                 log.error(error_msg)
                 raise AssertionError(error_msg)
