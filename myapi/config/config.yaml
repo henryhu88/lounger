@@ -1,0 +1,11 @@
+# base URL
+base_url: https://jsonplaceholder.typicode.com
+
+#  test directory
+test_project:
+  sample: True  # --> /datas/sample/
+
+# global variable
+global_test_config:
+  var_one: foo
+  var_two: bar

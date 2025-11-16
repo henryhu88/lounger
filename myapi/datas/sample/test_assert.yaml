@@ -1,0 +1,24 @@
+- teststeps:
+    - name: Test assertion type
+      request:
+        method: GET
+        url: /posts/1
+      validate:
+        equal:
+          - [ "status_code", 200 ]
+        not_equal:
+          - [ "body.userId", 2 ]
+        contains:
+          - [ "body.title", "sunt aut facere repellat" ]
+        not_contains:
+          - [ "body.body", "quib" ]
+        "length":
+          - [ "body.body", 158 ]
+        "greater":
+          - [ "body.id", 0 ]
+        "greater_equal":
+          - [ "body.id", 1 ]
+        "less":
+          - [ "body.id", 2 ]
+        "less_equal":
+          - [ "body.id", 1 ]

@@ -1,0 +1,9 @@
+- teststeps:
+    - name: Getting a resource
+      prescript: init_db.py
+      request:
+        method: GET
+        url: /posts/1
+      validate:
+        equal:
+          - [ "status_code", 200 ]
