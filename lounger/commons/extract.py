@@ -39,7 +39,7 @@ def extract_var(resp: Any, expr_or_data: Optional[Dict[str, str]]) -> None:
         log.error(f"The response is not a valid JSON: {e}")
         return None
 
-    if isinstance(resp_json, dict):
+    if isinstance(resp_json, dict) or isinstance(resp_json, list):
         for key, expr in expr_or_data.items():
             try:
                 result = jmespath(resp_json, expr)
