@@ -63,6 +63,8 @@ Options:
   --help                   Show this message and exit.
 ```
 
+### Web项目
+
 * 创建web自动化测试项目。
 
 ```shell
@@ -78,6 +80,8 @@ $ lounger -pw myweb
 2025-10-06 09:33:22 | INFO     | cli.py | 🎉 Project 'myweb' created successfully.
 2025-10-06 09:33:22 | INFO     | cli.py | 👉 Go to the project folder and run 'pytest' to start testing.
 ```
+
+### API项目
 
 * 创建api自动化测试项目。
 
@@ -101,7 +105,7 @@ $ lounger -pa myapi
 
 > 注：项目包含通过YAML管理API测试用例，编写规范参考下面的文档。
 
-👉 [阅读文档](./myyapi)
+👉 [阅读文档](./myapi)
 
 * 直接运行测试
 
