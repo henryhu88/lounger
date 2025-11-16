@@ -41,7 +41,7 @@ pytest
 ```
 
 * 测试报告
-  ![](result.png)
+  ![](../images/result.png)
 
 ## 基础概念
 
@@ -440,7 +440,7 @@ test_project:
 
 * 两种测试用例对比
 
-![](YAML_vs_code.png)
+![](../images/YAML_vs_code.png)
 
 * 通过`pytest`命令执行
 
@@ -457,6 +457,6 @@ test_dir\test_sample.                                          [100%]
 
 * 查看测试报告
 
-![result](result.png)
+![result](../images/result.png)
 
 通过运行方式日志和测试报告可以看到，两者可以毫无违和感的一起执行。
