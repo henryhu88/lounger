@@ -152,6 +152,19 @@ def load_teststeps():
     Pytest decorator factory to parametrize test cases.
     Loads test cases and returns pytest.mark.parametrize with proper args and IDs.
     """
+    info = """
+╭─ YAML API Testing ────────────────────────────────────────────────────────────────────╮
+│- teststeps:                                                                           │
+│    - name: Getting a resource                                                         │ 
+│      request:                                                                         │  
+│        method: GET                                                                    │ 
+│        url: /posts/1                                                                  │
+│      validate:                                                                        │
+│        equal:                                                                         │
+│          - [ "status_code", 200 ]                                                     │
+╰───────────────────────────────────────────────────────────────────────────────────────╯
+"""
+    log.info(info)
     cases = load_test_cases()
     parametrized_cases = [
         {"name": name, "steps": steps, "file": file_path}
