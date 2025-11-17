@@ -1,3 +1,16 @@
+## 0.7.0(2025-11-18)
+
+* YAML API 更新：
+    * 支持`centrifuge` 协议，公司内部使用。
+    * `commons` 相关代码重构。
+    * 测试步骤增加 `prescript` 字段，执行前置脚本。
+    * 测试步骤增加 `sleep` 字段，支持用例执行完休眠。
+    * 简化`test_api.py`脚本。
+    * 增加新的断言类型：`greater`,`greater_equal`, `less`, `less_equal`。
+* 使用新的模板
+* 移除`jmespath`直接依赖。
+* 升级`pytest-req` 到 0.5.0版本。
+
 ## 0.6.0(2025-10-23)
 
 * 更新`lounger`命令，创建API测试，直接提供混合示例。
