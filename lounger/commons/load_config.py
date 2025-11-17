@@ -61,11 +61,10 @@ class LoadConfig:
         """
         Get test case paths based on project configuration
         """
+        log.info("=== Reading Test Configuration ===")
         project_name_list = self.get_project_name()
-        log.info(f"project_name_list: {project_name_list}")
         try:
             need_test_projects, skip_test_projects = self.get_project_config()
-            log.info("=== Read Test Configuration ===")
             log.info(f"Running tests: {need_test_projects}")
             log.info(f"Skipped tests: {skip_test_projects}")
 
