@@ -1,4 +1,4 @@
-# lounger框架兼容YAPI管理API测试
+# lounger框架兼容YAML管理API测试
 
 ## 安装与使用
 
@@ -15,8 +15,8 @@ pip install lounger
 lounger 支持命令生成API测试项目。
 
 ```shell
-lounger --project-api myyapi
-2025-11-16 17:58:18 | INFO     | cli.py | Start to create new test project: myyapi
+lounger --project-api myapi
+2025-11-16 17:58:18 | INFO     | cli.py | Start to create new test project: myapi
 2025-11-16 17:58:18 | INFO     | cli.py | CWD: D:\github\seldomQA\lounger
 
 2025-11-16 17:58:18 | INFO     | cli.py | 📁 created folder: reports
@@ -27,8 +27,24 @@ lounger --project-api myyapi
 2025-11-16 17:58:18 | INFO     | cli.py | 📄 created file: datas/sample/test_sample.yaml
 2025-11-16 17:58:18 | INFO     | cli.py | 📄 created file: test_dir/__init__.py
 2025-11-16 17:58:18 | INFO     | cli.py | 📄 created file: test_dir/test_sample.py
-2025-11-16 17:58:18 | INFO     | cli.py | 🎉 Project 'myyapi' created successfully.
+2025-11-16 17:58:18 | INFO     | cli.py | 🎉 Project 'myapi' created successfully.
 2025-11-16 17:58:18 | INFO     | cli.py | 👉 Go to the project folder and run 'pytest' to start testing.
+```
+
+* 目录结构如下
+
+```shell
+├─config
+│  ├─config.yaml
+├─datas    # 用YAML写用例
+│  ├─sample
+│  │   ├─test_sample.yaml
+├─test_dir # 用code写用例
+│  ├─test_sample.py
+├─reports
+├─conftest.py
+├─pytest.ini
+└─test_api.py
 ```
 
 ### 运行测试
@@ -36,7 +52,7 @@ lounger --project-api myyapi
 * 进入项目，运行测试。
 
 ```shell
-cd myyapi
+cd myapi
 pytest
 ```
 
@@ -451,7 +467,7 @@ pytest --html=reports\\result.html
 test_api.py ..                                              [ 50%]
 test_dir\test_sample.                                          [100%]
 
---------Generated html report: file:///D:/github/seldomQA/lounger/myyapi/reports/result.html --------
+--------Generated html report: file:///D:/github/seldomQA/lounger/myapi/reports/result.html --------
 ======================================= 4 passed in 0.19s =======================================
 ```
 

@@ -37,6 +37,16 @@ lounger --project-web myweb
 2025-11-18 00:05:00 | INFO     | cli.py | 👉 Go to the project folder and run 'pytest' to start testing.
 ```
 
+* 目录结构如下
+
+```shell
+├─test_dir
+│  ├─test_sample.py
+├─reports
+├─conftest.py
+└─pytest.ini
+```
+
 ### 运行测试
 
 * 进入项目，运行测试。
