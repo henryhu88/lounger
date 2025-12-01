@@ -4,6 +4,11 @@ from lounger.centrifuge.centrifuge_client import SubscriptionEventLoggerHandler
 from lounger.log import log
 
 
+class ClientRole:
+    B = "B"
+    C = "C"
+
+
 async def subscribe_to_shop_channel(client: CentrifugeClient, shop_id: str) -> None:
     """
     Subscribe to the shop channel using the given shop_id.
@@ -32,7 +37,6 @@ def create_client(
     Create and configure a WebSocket client for B or C end.
     All business data (shop_id, tokens, etc.) is passed in explicitly.
     """
-    role = role.upper()
     params = {
         "address": websocket_url,
         "events": ClientEventLoggerHandler(),
@@ -40,14 +44,14 @@ def create_client(
         "use_protobuf": False,
     }
 
-    if role == 'B':
+    if role == ClientRole.B:
         token = default_headers['Authorization']
         livechat_token = default_headers['x-livechat-token']
         params['headers']['x-livechat-token'] = livechat_token
         params['token'] = token
         log.info(f"🔷 B-end uses token - Auth: {token[:20]}..., x-livechat: {livechat_token[:20]}...")
 
-    elif role == 'C':
+    elif role == ClientRole.C:
         livechat_token = c_headers['x-livechat-token']
         params['headers']['x-livechat-token'] = livechat_token
         log.info(f"🔶 C-end uses x-livechat-token: {livechat_token[:20]}...")

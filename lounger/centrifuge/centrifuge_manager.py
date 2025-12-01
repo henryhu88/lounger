@@ -1,12 +1,16 @@
 import asyncio
 import threading
-from typing import Optional
 
+from lounger.centrifuge.centrifuge_client_factory import ClientRole
 from lounger.centrifuge.centrifuge_client_factory import create_client, subscribe_to_shop_channel
 from lounger.commons.load_config import global_test_config
-from lounger.utils.cache import cache
 from lounger.log import log
+from lounger.utils.cache import cache
 
+
+class ClientType:
+    B = "b"
+    C = "c"
 
 
 # 全局后台事件循环（永不阻塞）
@@ -29,7 +33,6 @@ class BackgroundLoop:
 bg_loop = BackgroundLoop()
 
 
-
 # Centrifuge Client 管理器
 class CentrifugeClientManager:
     _instance = None
@@ -41,17 +44,16 @@ class CentrifugeClientManager:
         return cls._instance
 
     def get_client(self, client_type: str):
-        return self._clients.get(client_type.lower())
+        return self._clients.get(client_type)
 
     def set_client(self, client_type: str, client):
-        self._clients[client_type.lower()] = client
+        self._clients[client_type] = client
 
     def has_clients(self):
         return len(self._clients) > 0
 
 
 client_manager = CentrifugeClientManager()
-
 
 
 # RPC 方法
@@ -76,20 +78,19 @@ async def centrifuge_custom_method(client, *args, **kwargs):
     return await client.rpc(kwargs["custom_method"], data)
 
 
-
 # 初始化客户端（必须在后台 loop 上跑）
 async def _async_init_clients():
     config = _get_centrifuge_config()
 
-    # 创建 C
+    # create C client role
     c_client = create_client(
-        "C", config["shop_id"], config["conversation_id"],
+        ClientRole.C, config["shop_id"], config["conversation_id"],
         config["url"], config["default_headers"], config["c_headers"]
     )
 
-    # 创建 B
+    # create B client role
     b_client = create_client(
-        "B", config["shop_id"], config["conversation_id"],
+        ClientRole.B, config["shop_id"], config["conversation_id"],
         config["url"], config["default_headers"], config["c_headers"]
     )
     b_client.conversation_id = c_client.conversation_id
@@ -99,8 +100,8 @@ async def _async_init_clients():
     await subscribe_to_shop_channel(b_client, config["shop_id"])
 
     # 保存
-    client_manager.set_client("c", c_client)
-    client_manager.set_client("b", b_client)
+    client_manager.set_client(ClientType.C, c_client)
+    client_manager.set_client(ClientType.B, b_client)
 
     log.info("Centrifuge clients initialized")
 
@@ -122,10 +123,8 @@ def _initialize_clients():
     future.result()  # 等初始化完成
 
 
-
 # 外部统一 API（不阻塞、不 run_until_complete）
 def send_centrifuge(role, action, *args, **kwargs):
-
     # 初始化
     if not client_manager.has_clients():
         _initialize_clients()
