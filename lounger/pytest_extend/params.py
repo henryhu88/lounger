@@ -8,7 +8,7 @@ from lounger.pytest_extend import conversion
 from lounger.config import Lounger
 
 __all__ = [
-    "file_data", "data",
+    "file_data", "data", "find_file"
 ]
 
 
