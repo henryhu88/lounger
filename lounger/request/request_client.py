@@ -5,9 +5,9 @@ from typing import Dict, Any
 import requests
 from pytest_req.plugin import Session
 
+from lounger.commons.load_config import base_url
 from lounger.log import log
 from lounger.utils import cache
-from lounger.utils.config_utils import ConfigUtils
 
 
 class RequestClient:
@@ -19,9 +19,7 @@ class RequestClient:
         """
         Initialize the HTTP client with base URL
         """
-        config_file = ConfigUtils("config/config.yaml")
-        base_url = config_file.get_config("base_url")
-        self._session = Session(base_url)
+        self._session = Session(base_url())
 
     @staticmethod
     def _files_load(files_dict: Dict[str, str]) -> Dict[str, Any]:

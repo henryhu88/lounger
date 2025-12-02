@@ -1,3 +1,4 @@
+import os
 from typing import Dict, Any, Optional
 
 import yaml
@@ -18,12 +19,9 @@ class ConfigUtils:
         :param config_file_path: Path to the YAML configuration file
         """
         self.config_file_path = config_file_path
-        try:
-            with open(self.config_file_path, 'r', encoding='utf-8'):
-                pass
-        except FileNotFoundError:
-            log.error(f"Configuration file not found: {self.config_file_path}")
-            raise
+
+    def is_exists(self) -> bool:
+        return os.path.exists(self.config_file_path)
 
     def _get_config_file_data(self) -> Dict[str, Any]:
         """

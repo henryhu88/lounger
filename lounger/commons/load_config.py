@@ -19,7 +19,10 @@ def global_test_config(key: str) -> Any:
 
 def base_url():
     config_file = ConfigUtils("config/config.yaml")
-    return config_file.get_config("base_url")
+    if config_file.is_exists():
+        return config_file.get_config("base_url")
+    else:
+        return None
 
 
 class LoadConfig:
