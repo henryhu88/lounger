@@ -13,8 +13,11 @@ class ClientType:
     C = "c"
 
 
-# 全局后台事件循环（永不阻塞）
 class BackgroundLoop:
+    """
+    Global background event loop (never blocking)
+    """
+
     def __init__(self):
         self.loop = asyncio.new_event_loop()
         t = threading.Thread(target=self.start, daemon=True)
@@ -25,16 +28,17 @@ class BackgroundLoop:
         self.loop.run_forever()
 
     def submit(self, coro):
-        """跨线程提交 coroutine 到后台 loop 执行"""
+        """Submit coroutine to background loop for execution across threads"""
         return asyncio.run_coroutine_threadsafe(coro, self.loop)
 
 
-# 创建单例后台事件循环
 bg_loop = BackgroundLoop()
 
 
-# Centrifuge Client 管理器
 class CentrifugeClientManager:
+    """
+    Centrifuge Client Manager
+    """
     _instance = None
 
     def __new__(cls):
@@ -56,7 +60,6 @@ class CentrifugeClientManager:
 client_manager = CentrifugeClientManager()
 
 
-# RPC 方法
 async def centrifuge_send_message(client, *args, **kwargs):
     message = kwargs.get("message")
     if not message:
@@ -78,7 +81,7 @@ async def centrifuge_custom_method(client, *args, **kwargs):
     return await client.rpc(kwargs["custom_method"], data)
 
 
-# 初始化客户端（必须在后台 loop 上跑）
+# Initialize clients (must run on background loop)
 async def _async_init_clients():
     config = _get_centrifuge_config()
 
@@ -95,11 +98,11 @@ async def _async_init_clients():
     )
     b_client.conversation_id = c_client.conversation_id
 
-    # 订阅
+    # Subscribe
     await subscribe_to_shop_channel(c_client, config["shop_id"])
     await subscribe_to_shop_channel(b_client, config["shop_id"])
 
-    # 保存
+    # Save
     client_manager.set_client(ClientType.C, c_client)
     client_manager.set_client(ClientType.B, b_client)
 
@@ -118,14 +121,14 @@ def _get_centrifuge_config():
 
 
 def _initialize_clients():
-    """只初始化一次，且必须在后台线程 loop 中完成"""
+    """Initialize only once, and must be completed in the background thread loop"""
     future = bg_loop.submit(_async_init_clients())
-    future.result()  # 等初始化完成
+    future.result()  # Wait for initialization to complete
 
 
-# 外部统一 API（不阻塞、不 run_until_complete）
+# External unified API (non-blocking, no run_until_complete)
 def send_centrifuge(role, action, *args, **kwargs):
-    # 初始化
+    # Initialization
     if not client_manager.has_clients():
         _initialize_clients()
 

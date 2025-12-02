@@ -5,8 +5,8 @@ from lounger.log import log
 
 
 class ClientRole:
-    B = "B"
-    C = "C"
+    B = "B"  # business
+    C = "C"  # consumer
 
 
 async def subscribe_to_shop_channel(client: CentrifugeClient, shop_id: str) -> None:
