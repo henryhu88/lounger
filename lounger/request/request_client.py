@@ -113,20 +113,22 @@ class RequestClient:
                 del kwargs['image']
 
             # Support GraphQL parameters
-            request_json = kwargs['json']
-            if "query_path" in request_json:
-                query_path = request_json.pop("query_path")
-                log.debug(f"Loading GraphQL query from: {query_path}")
-                request_json["query"] = self._load_from_path(query_path, is_json=False)
+            if "json" in kwargs:
+                request_json = kwargs['json']
 
-            if "variables_path" in request_json:
-                variables_path = request_json.pop("variables_path")
-                log.debug(f"Loading variables from: {variables_path}")
-                loaded_vars = self._load_from_path(variables_path, is_json=True)
-                current_vars = request_json.get("variables", {})
-                request_json["variables"] = {**current_vars, **loaded_vars}
+                if "query_path" in request_json:
+                    query_path = request_json.pop("query_path")
+                    log.debug(f"Loading GraphQL query from: {query_path}")
+                    request_json["query"] = self._load_from_path(query_path, is_json=False)
 
-            kwargs['json'] = request_json
+                if "variables_path" in request_json:
+                    variables_path = request_json.pop("variables_path")
+                    log.debug(f"Loading variables from: {variables_path}")
+                    loaded_vars = self._load_from_path(variables_path, is_json=True)
+                    current_vars = request_json.get("variables", {})
+                    request_json["variables"] = {**current_vars, **loaded_vars}
+
+                kwargs['json'] = request_json
 
             # Get method and URL
             method = kwargs.pop("method", "GET").upper()
