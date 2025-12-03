@@ -8,11 +8,6 @@ from lounger.log import log
 from lounger.utils.cache import cache
 
 
-class ClientType:
-    B = "b"
-    C = "c"
-
-
 class BackgroundLoop:
     """
     Global background event loop (never blocking)
@@ -48,10 +43,10 @@ class CentrifugeClientManager:
         return cls._instance
 
     def get_client(self, client_type: str):
-        return self._clients.get(client_type)
+        return self._clients.get(client_type.lower())
 
     def set_client(self, client_type: str, client):
-        self._clients[client_type] = client
+        self._clients[client_type.lower()] = client
 
     def has_clients(self):
         return len(self._clients) > 0
@@ -103,8 +98,8 @@ async def _async_init_clients():
     await subscribe_to_shop_channel(b_client, config["shop_id"])
 
     # Save
-    client_manager.set_client(ClientType.C, c_client)
-    client_manager.set_client(ClientType.B, b_client)
+    client_manager.set_client(ClientRole.C, c_client)
+    client_manager.set_client(ClientRole.B, b_client)
 
     log.info("Centrifuge clients initialized")
 
