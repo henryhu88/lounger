@@ -18,6 +18,8 @@ ASSERT_TYPES: dict = {
     "greater_equal": lambda actual, expected: actual >= expected,  # Assert greater than or equal to
     "less": lambda actual, expected: actual < expected,  # Assert less than
     "less_equal": lambda actual, expected: actual <= expected,  # Assert less than or equal to
+    "is_null": lambda actual,expected: actual == None,
+    "is_not_null": lambda actual,expected: actual != None
 }
 
 
