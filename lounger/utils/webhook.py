@@ -22,7 +22,7 @@ class DingDingWebhook:
 
     def send_autotest_report(self, result, title='接口自动化测试结果', text=None):
         if not text:
-            text = f"#### {title} \n  > ###### 用例总数：%s\n > ###### 成功用例数量：%s\n > ###### 失败用例数量：%s\n > ###### 报错用例数量：%s\n > ###### 跳过用例数量：%s \n > ###### 报告生成时间：%s)" % (
+            text = f"#### {title} \n  > ###### 用例总数：%s\n > ###### 成功用例数量：%s\n > ###### 失败用例数量：%s\n > ###### 报错用例数量：%s\n > ###### 跳过用例数量：%s \n > ###### 报告生成时间：%s" % (
                 result._numcollected, len(result.stats.get('passed', [])), len(result.stats.get('failed', [])),
                 len(result.stats.get('error', [])), len(result.stats.get('skipped', [])),
                 time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
