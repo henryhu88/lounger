@@ -87,8 +87,6 @@ def api_validate(resp: requests.Response, validate_value: Optional[Dict[str, Any
 
             expr, expected = item
             actual = _get_actual_value(resp, expr)
-            if actual is None:
-                raise AssertionError(f"❓ Please check the JMESPath expression -> {expr}.")
             assert_func = ASSERT_TYPES[assert_type]
             result = assert_func(actual, expected)
 
