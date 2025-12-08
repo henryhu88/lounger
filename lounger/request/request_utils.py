@@ -14,8 +14,10 @@ from lounger.log import log
 class HttpRequest:
     """lounger http request class"""
 
-    def __init__(self, base_url: str = None):
+    def __init__(self, base_url: str = None, *args, **kwargs):
         self.base_url = base_url
+        self.args = args
+        self.kwargs = kwargs
 
     @request
     def get(self, url, params=None, **kwargs):
