@@ -5,11 +5,22 @@ from typing import Any
 import pytest
 from pytest_req.log import log_cfg
 
+from lounger import __version__
+from lounger.log import log
 from lounger.pytest_extend import screenshot_base64
 
 LOG_STREAM = StringIO()
 
 html_title = "Lounger Test Report"
+
+logo = rf"""
+    __                                 
+   / /___  __  ______  ____ ____  _____
+  / / __ \/ / / / __ \/ __ `/ _ \/ ___/
+ / / /_/ / /_/ / / / / /_/ /  __/ /    
+/_/\____/\__,_/_/ /_/\__, /\___/_/     
+                    /____/             v{__version__}
+"""
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -24,8 +35,11 @@ def setup_log():
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_configure(config):
-    global html_title
+    # print logo
+    log.info(logo)
+
     # Here we fetch the command-line argument using config object
+    global html_title
     title = config.getoption("--html-title")
     if title:
         html_title = title
