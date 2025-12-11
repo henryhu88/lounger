@@ -39,7 +39,6 @@ class BasePage(object):
     def __init__(self, page):
         """
         :param page: `playwright.sync_api.Page`
-        :param url: `str`
         Root URI to base any calls to the ``PageObject.get`` method. If not defined
         in the constructor it will try and look it from the webdriver object.
         """
