@@ -241,21 +241,7 @@ class Locator:
             timeout=self.timeout
         )
 
-    async def set_checked(self, checked: bool) -> None:
-        """
-        This method checks or unchecks an element.
-        :param checked:
-        :return:
-        """
-        Lounger.action = "set_checked()"
-        return self.find.set_checked(
-            checked=checked,
-            position=self.position,
-            timeout=self.timeout,
-            force=self.force,
-            no_wait_after=self.no_wait_after,
-            trial=self.trial,
-        )
+
 
     def click(self, click_count: int = None, button: MouseButton = None) -> None:
         """
@@ -732,3 +718,271 @@ class Locator:
             timeout=self.timeout,
             state=state,
         )
+
+    def locator(
+            self,
+            selector_or_locator: Union["Locator", str],
+            has_text: Union[str, Pattern[str]] = None,
+            has_not_text: Union[str, Pattern[str]] = None,
+            has: "Locator" = None,
+            has_not: "Locator" = None,
+    ) -> "Locator":
+        """
+        The method finds an element matching the specified selector in the locator's subtree.
+        It also accepts filter options, similar to `locator.filter()` method.
+        :param selector_or_locator: A selector or locator to use when resolving DOM element.
+        :param has_text: Matches elements containing specified text somewhere inside, possibly in a child or a descendant element.
+        :param has_not_text: Matches elements that do not contain specified text somewhere inside, possibly in a child or a descendant element.
+        :param has: Narrows down the results of the method to those which contain elements matching this relative locator.
+        :param has_not: Matches elements that do not contain an element that matches an inner locator.
+        :return:
+        """
+        Lounger.action = "locator()"
+        return self.find.locator(
+            selectorOrLocator=selector_or_locator,
+            hasText=has_text,
+            hasNotText=has_not_text,
+            has=has.find if has else None,
+            hasNot=has_not.find if has_not else None,
+        )
+
+    def get_by_alt_text(
+            self,
+            text: Union[str, Pattern[str]],
+            exact: bool = None,
+    ) -> "Locator":
+        """
+        Allows locating elements by their alt text.
+        :param text: Text to locate the element for.
+        :param exact: Whether to find an exact match: case-sensitive and whole-string.
+        :return:
+        """
+        Lounger.action = "get_by_alt_text()"
+        return self.find.get_by_alt_text(text=text, exact=exact)
+
+    def get_by_label(
+            self,
+            text: Union[str, Pattern[str]],
+            exact: bool = None,
+    ) -> "Locator":
+        """
+        Allows locating input elements by the text of the associated `<label>` or `aria-labelledby` element, or by the
+        `aria-label` attribute.
+        :param text: Text to locate the element for.
+        :param exact: Whether to find an exact match: case-sensitive and whole-string.
+        :return:
+        """
+        Lounger.action = "get_by_label()"
+        return self.find.get_by_label(text=text, exact=exact)
+
+    def get_by_placeholder(
+            self,
+            text: Union[str, Pattern[str]],
+            exact: bool = None,
+    ) -> "Locator":
+        """
+        Allows locating input elements by the placeholder text.
+        :param text: Text to locate the element for.
+        :param exact: Whether to find an exact match: case-sensitive and whole-string.
+        :return:
+        """
+        Lounger.action = "get_by_placeholder()"
+        return self.find.get_by_placeholder(text=text, exact=exact)
+
+    def get_by_role(
+            self,
+            role: Literal[
+                "alert",
+                "alertdialog",
+                "application",
+                "article",
+                "banner",
+                "blockquote",
+                "button",
+                "caption",
+                "cell",
+                "checkbox",
+                "code",
+                "columnheader",
+                "combobox",
+                "complementary",
+                "contentinfo",
+                "definition",
+                "deletion",
+                "dialog",
+                "directory",
+                "document",
+                "emphasis",
+                "feed",
+                "figure",
+                "form",
+                "generic",
+                "grid",
+                "gridcell",
+                "group",
+                "heading",
+                "img",
+                "insertion",
+                "link",
+                "list",
+                "listbox",
+                "listitem",
+                "log",
+                "main",
+                "marquee",
+                "math",
+                "menu",
+                "menubar",
+                "menuitem",
+                "menuitemcheckbox",
+                "menuitemradio",
+                "meter",
+                "navigation",
+                "none",
+                "note",
+                "option",
+                "paragraph",
+                "presentation",
+                "progressbar",
+                "radio",
+                "radiogroup",
+                "region",
+                "row",
+                "rowgroup",
+                "rowheader",
+                "scrollbar",
+                "search",
+                "searchbox",
+                "separator",
+                "slider",
+                "spinbutton",
+                "status",
+                "strong",
+                "subscript",
+                "superscript",
+                "switch",
+                "tab",
+                "table",
+                "tablist",
+                "tabpanel",
+                "term",
+                "textbox",
+                "time",
+                "timer",
+                "toolbar",
+                "tooltip",
+                "tree",
+                "treegrid",
+                "treeitem",
+            ],
+            checked: bool = None,
+            disabled: bool = None,
+            expanded: bool = None,
+            include_hidden: bool = None,
+            level: int = None,
+            name: Union[str, Pattern[str]] = None,
+            pressed: bool = None,
+            selected: bool = None,
+            exact: bool = None,
+    ) -> "Locator":
+        """
+        Allows locating elements by their ARIA role, ARIA attributes and accessible name.
+        :param role: Required aria role.
+        :param checked: An attribute that is usually set by `aria-checked` or native `<input type=checkbox>` controls.
+        :param disabled: An attribute that is usually set by `aria-disabled` or `disabled`.
+        :param expanded: An attribute that is usually set by `aria-expanded`.
+        :param include_hidden: Option that controls whether hidden elements are matched.
+        :param level: A number attribute that is usually present for roles `heading`, `listitem`, `row`, `treeitem`.
+        :param name: Option to match the accessible name.
+        :param pressed: An attribute that is usually set by `aria-pressed`.
+        :param selected: An attribute that is usually set by `aria-selected`.
+        :param exact: Whether `name` is matched exactly: case-sensitive and whole-string.
+        :return:
+        """
+        Lounger.action = "get_by_role()"
+        return self.find.get_by_role(
+            role=role,
+            checked=checked,
+            disabled=disabled,
+            expanded=expanded,
+            includeHidden=include_hidden,
+            level=level,
+            name=name,
+            pressed=pressed,
+            selected=selected,
+            exact=exact,
+        )
+
+    def get_by_test_id(self, test_id: Union[str, Pattern[str]]) -> "Locator":
+        """
+        Locate element by the test id.
+        :param test_id: Id to locate the element by.
+        :return:
+        """
+        Lounger.action = "get_by_test_id()"
+        return self.find.get_by_test_id(testId=test_id)
+
+    def get_by_text(
+            self,
+            text: Union[str, Pattern[str]],
+            exact: bool = None,
+    ) -> "Locator":
+        """
+        Allows locating elements that contain given text.
+        :param text: Text to locate the element for.
+        :param exact: Whether to find an exact match: case-sensitive and whole-string.
+        :return:
+        """
+        Lounger.action = "get_by_text()"
+        return self.find.get_by_text(text=text, exact=exact)
+
+    def get_by_title(
+            self,
+            text: Union[str, Pattern[str]],
+            exact: bool = None,
+    ) -> "Locator":
+        """
+        Allows locating elements by their title attribute.
+        :param text: Text to locate the element for.
+        :param exact: Whether to find an exact match: case-sensitive and whole-string.
+        :return:
+        """
+        Lounger.action = "get_by_title()"
+        return self.find.get_by_title(text=text, exact=exact)
+
+    def describe(self, description: str) -> "Locator":
+        """
+        Describes the locator, description is used in the trace viewer and reports. Returns the locator pointing to the
+        same element.
+        :param description: Locator description.
+        :return:
+        """
+        Lounger.action = "describe()"
+        return self.find.describe(description=description)
+
+    def or_(self, locator: "Locator") -> "Locator":
+        """
+        Creates a locator matching all elements that match one or both of the two locators.
+        :param locator: Alternative locator to match.
+        :return:
+        """
+        Lounger.action = "or_()"
+        return self.find.or_(locator=locator.find)
+
+    def and_(self, locator: "Locator") -> "Locator":
+        """
+        Creates a locator that matches both this locator and the argument locator.
+        :param locator: Additional locator to match.
+        :return:
+        """
+        Lounger.action = "and_()"
+        return self.find.and_(locator=locator.find)
+
+    def aria_snapshot(self, timeout: float = None) -> str:
+        """
+        Captures the aria snapshot of the given element.
+        :param timeout: Maximum time in milliseconds.
+        :return:
+        """
+        Lounger.action = "aria_snapshot()"
+        return self.find.aria_snapshot(timeout=timeout if timeout is not None else self.timeout)
