@@ -155,7 +155,7 @@ def load_teststeps():
     info = """
 ╭─ YAML API Testing ────────────────────────────────────────────────────────────────────╮
 │- teststeps:                                                                           │
-│    - name: Getting a resource                                                         │ 
+│    - step: Getting a resource                                                         │ 
 │      request:                                                                         │  
 │        method: GET                                                                    │ 
 │        url: /posts/1                                                                  │

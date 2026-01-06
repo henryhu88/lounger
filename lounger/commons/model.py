@@ -8,14 +8,15 @@ from lounger.log import log
 class BaseModel:
     """Base model for all test cases"""
     name: str = ""
+    step: Optional[str] = None
     prescript: Optional[str] = None
     extract: Optional[Dict[str, Any]] = None
     validate: Optional[Dict[str, Any]] = None
     sleep: Optional[int] = None
 
     def __post_init__(self):
-        if not self.name:
-            raise ValueError("RequestModel.name is required.")
+        if not self.name and not self.step:
+            raise ValueError("Either 'name' or 'step' is required.")
 
 
 @dataclass

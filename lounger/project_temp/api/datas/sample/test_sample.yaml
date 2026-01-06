@@ -1,5 +1,5 @@
 - teststeps:
-    - name: Getting a resource
+    - step: Getting a resource
       request:
         method: GET
         url: /posts/1
@@ -9,7 +9,7 @@
         contains:
           - [ "body.title", "sunt aut facere repellat" ]
 - teststeps:
-    - name: Creating a resource
+    - step: Creating a resource
       request:
         method: POST
         url: /posts
