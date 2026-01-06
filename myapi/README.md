@@ -115,11 +115,11 @@ pytest 对于这一设计理念体现的比较明显。
 - teststeps:
     - presteps:  # 前置步骤
       ...
-    - name:      # 测试步骤
+    - step:      # 测试步骤
       ...
-    - name:      # 测试步骤
+    - step:      # 测试步骤
       ...
-    - name:      # 测试步骤
+    - step:      # 测试步骤
       ...
 ```
 
@@ -127,7 +127,7 @@ pytest 对于这一设计理念体现的比较明显。
 
 ```yaml
 - teststeps:
-    - name:      # 步骤名
+    - step:      # 步骤名
       request:   # 请求
       extract:   # 变量提取
       validate:  # 断言
@@ -162,7 +162,7 @@ pytest 对于这一设计理念体现的比较明显。
 
 ```yaml
 - teststeps:
-    - name: get user info
+    - step: get user info
       request:
       validate: # 断言
         equal: # 断言相等
@@ -228,7 +228,7 @@ def test_api(teststeps: Dict) -> None:
 
 ```yaml
 - teststeps:
-    - name: Listing all resources
+    - step: Listing all resources
       request:
         method: GET
         url: /posts
@@ -237,7 +237,7 @@ def test_api(teststeps: Dict) -> None:
       validate:
         equal:
           - [ "status_code", 200 ]
-    - name: Getting a resource
+    - step: Getting a resource
       request:
         method: GET
         url: /posts/${extract(second_id)}  # 使用提取变量
@@ -261,7 +261,7 @@ global_test_config:
 
 ```yaml
 - teststeps:
-    - name: Creating a resource
+    - step: Creating a resource
       request:
         method: POST
         url: /posts
@@ -296,14 +296,14 @@ def age_add_one(age):
 
 ```yaml
 - teststeps:
-    - name: Getting a resource id=1+1
+    - step: Getting a resource id=1+1
       request:
         method: GET
         url: /posts/${id_add_one(1)}  # 支持直接传值
       validate:
         equal:
           - [ "status_code", 200 ]
-    - name: Getting a resource id=2+1
+    - step: Getting a resource id=2+1
       request:
         method: GET
         url: /posts/${id_add_one($second_id)}  # 直接传变量
@@ -321,7 +321,7 @@ def age_add_one(age):
 ```yaml
 # datas/steps/login.yaml
 - teststeps:
-    - name: user login api
+    - step: user login api
       request:
         method: POST
         url: /login
@@ -342,7 +342,7 @@ def age_add_one(age):
 - teststeps:
     - presteps:
         - steps/login.yaml # 引用 login.yaml 作为前置接口。
-    - name: get user info
+    - step: get user info
       request:
         method: GET
         url: /id/1
@@ -391,7 +391,7 @@ init_db()
 # datas/sample/test_script.yaml
 
 - teststeps:
-    - name: Getting a resource
+    - step: Getting a resource
       prescript: init_db.py # 引用前置脚本
       request:
         method: GET

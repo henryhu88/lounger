@@ -1,5 +1,5 @@
 - teststeps:
-    - name: Getting a resource
+    - step: Getting a resource
       prescript: init_db.py
       request:
         method: GET

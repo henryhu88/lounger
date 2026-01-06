@@ -1,5 +1,5 @@
 - teststeps:
-    - name: Listing all resources
+    - step: Listing all resources
       request:
         method: GET
         url: /posts
@@ -8,7 +8,7 @@
       validate:
         equal:
           - [ "status_code", 200 ]
-    - name: Getting a resource
+    - step: Getting a resource
       request:
         method: GET
         url: /posts/${extract(second_id)}
@@ -16,7 +16,7 @@
         equal:
           - [ "status_code", 200 ]
 - teststeps:
-    - name: Creating a resource
+    - step: Creating a resource
       request:
         method: POST
         url: /posts
@@ -33,14 +33,14 @@
           - [ "body.title", "foo" ]
           - [ "body.body", "bar" ]
 - teststeps:
-    - name: Getting a resource id=1+1
+    - step: Getting a resource id=1+1
       request:
         method: GET
         url: /posts/${id_add_one(1)}
       validate:
         equal:
           - [ "status_code", 200 ]
-    - name: Getting a resource id=2+1
+    - step: Getting a resource id=2+1
       request:
         method: GET
         url: /posts/${id_add_one($second_id)}

@@ -1,5 +1,5 @@
 - teststeps:
-    - name: Test assertion type
+    - step: Test assertion type
       request:
         method: GET
         url: /posts/1
