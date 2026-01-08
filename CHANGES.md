@@ -1,3 +1,12 @@
+## 0.8.0(2026-01-09)
+
+* Web测试：
+    * 增加 `playwright` 最新API。
+* 接口测试
+    * 增加`save_response()` 方法用于保存响应结果。
+    * YAML支持`step`关键字用于描述测试步骤。
+* 升级 pytest-html 测试库。
+
 ## 0.7.3(2025-12-12)
 
 * `HttpRequest` 增加参数。
