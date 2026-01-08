@@ -66,17 +66,6 @@ Options:
 * 创建web自动化测试项目。
     ```shell
     $ lounger --project-web myweb
-    
-    2025-11-18 00:05:00 | INFO     | cli.py | Start to create new test project: myweb
-    2025-11-18 00:05:00 | INFO     | cli.py | CWD: D:\github\seldomQA\lounger
-    
-    2025-11-18 00:05:00 | INFO     | cli.py | 📁 created folder: reports
-    2025-11-18 00:05:00 | INFO     | cli.py | 📄 created file: conftest.py
-    2025-11-18 00:05:00 | INFO     | cli.py | 📄 created file: pytest.ini
-    2025-11-18 00:05:00 | INFO     | cli.py | 📄 created file: test_dir/__init__.py
-    2025-11-18 00:05:00 | INFO     | cli.py | 📄 created file: test_dir/test_sample.py
-    2025-11-18 00:05:00 | INFO     | cli.py | 🎉 Project 'myweb' created successfully.
-    2025-11-18 00:05:00 | INFO     | cli.py | 👉 Go to the project folder and run 'pytest' to start testing.
     ```
 
 * 运行项目
@@ -85,28 +74,11 @@ Options:
     $ pytest
     ```
 
-* 查看报告
-  ![](./images/result_web.png)
-
 ### API自动化项目
 
 * 创建api自动化测试项目。
     ```shell
     $ lounger --project-api myapi
-    
-    2025-10-22 23:36:31 | INFO     | cli.py | Start to create new test project: myapi
-    2025-10-22 23:36:31 | INFO     | cli.py | CWD: D:\github\seldomQA\lounger
-    
-    2025-10-22 23:36:31 | INFO     | cli.py | 📁 created folder: reports
-    2025-10-22 23:36:31 | INFO     | cli.py | 📄 created file: conftest.py
-    2025-10-22 23:36:31 | INFO     | cli.py | 📄 created file: test_api.py
-    2025-10-22 23:36:31 | INFO     | cli.py | 📄 created file: pytest.ini
-    2025-10-22 23:36:31 | INFO     | cli.py | 📄 created file: config/config.yaml
-    2025-10-22 23:36:31 | INFO     | cli.py | 📄 created file: datas/sample/test_sample.yaml
-    2025-10-22 23:36:31 | INFO     | cli.py | 📄 created file: test_dir/__init__.py
-    2025-10-22 23:36:31 | INFO     | cli.py | 📄 created file: test_dir/test_sample.py
-    2025-10-22 23:36:31 | INFO     | cli.py | 🎉 Project 'myapi' created successfully.
-    2025-10-22 23:36:31 | INFO     | cli.py | 👉 Go to the project folder and run 'pytest' to start testing.
     ```
   > 注：项目包含通过YAML管理API测试用例，编写规范参考下面的文档。
 
@@ -116,8 +88,10 @@ Options:
     $ pytest
     ```
 
-* 测试报告
-  ![](./images/result.png)
+### 测试报告
+
+* lounger集成`pytest-xhtml`，直接生成测试报告。
+  ![](./images/result_0.3.0.png)
 
 ## 项目&文档&示例
 
