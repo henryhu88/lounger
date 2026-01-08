@@ -57,7 +57,7 @@ pytest
 ```
 
 * 测试报告
-  ![](../images/result.png)
+  ![](../images/result_0.3.0.png)
 
 ## 基础概念
 
@@ -138,7 +138,7 @@ pytest 对于这一设计理念体现的比较明显。
 
 ```yaml
 - teststeps:
-    - name:      # 步骤名
+    - step:      # 步骤名
       requests: # 请求
         method:  # 请求方法，如 'GET', 'POST' 等
         url:  # 请求地址（URL）
