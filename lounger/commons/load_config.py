@@ -25,6 +25,9 @@ def base_url():
         return None
 
 
+base_url = base_url()
+
+
 class LoadConfig:
 
     def __init__(self):

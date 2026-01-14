@@ -19,7 +19,7 @@ class RequestClient:
         """
         Initialize the HTTP client with base URL
         """
-        self._session = Session(base_url())
+        self._session = Session(base_url)
 
     @staticmethod
     def _files_load(files_dict: Dict[str, str]) -> Dict[str, Any]:

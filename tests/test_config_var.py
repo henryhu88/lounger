@@ -1,4 +1,4 @@
-from  lounger.commons.load_config import base_url
+from lounger.commons.load_config import base_url
 from lounger.commons.load_config import global_test_config
 
 
@@ -6,7 +6,7 @@ def test_base_url():
     """
     base_url
     """
-    assert base_url() == "https://jsonplaceholder.typicode.com"
+    assert base_url == "https://jsonplaceholder.typicode.com"
 
 
 def test_global_test_config():
