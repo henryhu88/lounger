@@ -299,14 +299,14 @@ def age_add_one(age):
     - step: Getting a resource id=1+1
       request:
         method: GET
-        url: /posts/${id_add_one(1)}  # 支持直接传值
+        url: /posts/${age_add_one(1)}  # 支持直接传值
       validate:
         equal:
           - [ "status_code", 200 ]
     - step: Getting a resource id=2+1
       request:
         method: GET
-        url: /posts/${id_add_one($second_id)}  # 直接传变量
+        url: /posts/${age_add_one($second_id)}  # 直接传变量
       validate:
         equal:
           - [ "status_code", 200 ]
@@ -314,7 +314,7 @@ def age_add_one(age):
 
 ### 支持前置步骤
 
-在场景测试中，多条测试用例会公用一个前置接口，例如，依赖登录接口获取token。
+在场景测试中，多条测试用例共用一个前置接口，例如，依赖登录接口获取token。
 
 首先，创建一个`login.yaml`接口调用。
 
@@ -412,13 +412,12 @@ init_db()
 ├─config
 │  ├─config.yaml
 ├─datas
-│  ├─global_setup
+│  ├─global_setup  # 该目录下的用例最先执行
 │  │   ├─test_login.yaml
 │  ├─sample
 │  │   ├─test_sample.yaml
-│  ├─global_teardown
+│  ├─global_teardown  # 该目录下的用例最后执行
 │  │   ├─test_logout.yaml
-│  ├─test_req.py
 ├─reports
 ├─conftest.py
 └─test_api.py
@@ -427,11 +426,10 @@ init_db()
 * `config/config.yaml` 配置
 
 ```yaml
-
 #  test directory
 test_project:
-  global_setup: True # --> /datas/global_setup/  最先执行
-  sample: True  # --> /datas/sample/
+  global_setup: True    # --> /datas/global_setup/  最先执行
+  sample: True          # --> /datas/sample/
   global_teardown: True # --> /datas/global_teardown/  最后执行
 ```
 
@@ -461,7 +459,7 @@ test_project:
 * 通过`pytest`命令执行
 
 ```shell
-pytest --html=reports\\result.html
+pytest --html=reports/result.html
 ====================================== test session starts ======================================
 
 test_api.py ..                                              [ 50%]
