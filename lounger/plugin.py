@@ -66,7 +66,8 @@ def pytest_xhtml_report_title(report):
     :return:
     """
     global html_title
-    report.title = html_title
+    if report.title.endswith(".html"):
+        report.title = html_title
 
 
 def pytest_xhtml_results_table_header(cells):
