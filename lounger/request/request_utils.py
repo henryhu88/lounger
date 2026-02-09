@@ -51,7 +51,7 @@ class HttpRequest:
         return requests.patch(url, data=data, **kwargs)
 
 
-def api(describe: str = "", status_code: int = 200, ret: str = None, check: dict = None, debug: bool = False):
+def api(describe: str = "", status_code: int = None, ret: str = None, check: dict = None, debug: bool = False):
     """
     checkout api response data
     :param describe: interface describe
@@ -66,43 +66,41 @@ def api(describe: str = "", status_code: int = 200, ret: str = None, check: dict
         @wraps(func)
         def wrapper(*args, **kwargs):
             func_name = func.__name__
+            log.info(f"Execute HTTP API: {func_name} - {describe}")
             if debug is True:
-                log.debug(f"Execute {func_name} - args: {args}")
-                log.debug(f"Execute {func_name} - kwargs: {kwargs}")
+                log.debug(f"Params: args={args}, kwargs={kwargs}")
 
             r = func(*args, **kwargs)
-            flat = True
-            if r.status_code != status_code:
-                log.error(f"Execute {func_name} - {describe} failed: {r.status_code}")
-                flat = False
+
+            if status_code is not None:
+                if r.status_code != status_code:
+                    log.error(f"Execute {func_name} - {describe} failed: {r.status_code}")
+                    raise AssertionError(f"{r.status_code} != {status_code}")
 
             try:
-                r.json()
+                response_data = r.json()
             except json.decoder.JSONDecodeError:
                 log.error(f"Execute {func_name} - {describe} failed：Not in JSON format")
-                flat = False
+                response_data = {}
 
             if debug is True:
-                log.debug(f"Execute {func_name} - response:\n {r.json()}")
+                log.debug(f"Execute {func_name} - response:\n {response_data}")
 
-            if flat is True:
-                log.info(f"Execute {func_name} - {describe} success!")
-
-            if check is not None:
+            if check:
                 for expr, value in check.items():
-                    data = jmespath(r.json(), expr)
+                    data = jmespath(response_data, expr)
                     if data != value:
                         log.error(f"Execute {func_name} - check data failed：{expr} = {value}")
                         log.error(f"Execute {func_name} - response：{r.json()}")
                         raise ValueError(f"{data} != {value}")
 
-            if ret is not None:
-                data = jmespath(r.json(), ret)
-                if data is None:
-                    log.error(f"Execute {func_name} - return {ret} is None")
+            if ret:
+                data = jmespath(response_data, ret)
+                if debug is True:
+                    log.debug(f"Execute {func_name} - extract: {ret} - {data}")
                 return data
 
-            return r.json()
+            return response_data
 
         return wrapper
 
