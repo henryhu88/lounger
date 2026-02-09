@@ -11,7 +11,7 @@ authors = [
     { name = "bugmaster", email = "defnngj@gmail.com" }
 ]
 
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 dependencies = [
     "pytest-playwright>=0.7.0,<0.8.0",
@@ -24,6 +24,7 @@ dependencies = [
     "click>=8.1.7,<9.0.0",
     "python-dateutil==2.8.2",
     "centrifuge-python (>=0.4.1,<0.5.0)",
+    "autowing>=0.6.2"
 ]
 
 [project.urls]
