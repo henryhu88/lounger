@@ -4,6 +4,7 @@ lounger框架集成许多基本的功能，当前目录下即是单元测试，�
 
 | 文件名                         | 说明                                              |
 |-----------------------------|-------------------------------------------------|
+| `test_ai_web.py`            | Web测试：基于Auto-wing实现AI测试                         |
 | `test_playwright.py`        | Web测试：基于Playwright 自动化浏览器测试                     |
 | `test_page_object.py`       | 页面对象模型（Page Object Pattern）的封装与交互测试（用于 Web 自动化） |
 | `test_request.py`           | 封装的 HTTP 请求客户端测试                                |
