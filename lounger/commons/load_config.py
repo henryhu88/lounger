@@ -97,7 +97,7 @@ class LoadConfig:
                     teardown_paths.append(abs_path)
                 else:
                     normal_paths.append(abs_path)
-
+            normal_paths = sorted(normal_paths)
             sorted_paths = setup_paths + normal_paths + teardown_paths
 
             return sorted_paths
