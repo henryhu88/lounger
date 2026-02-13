@@ -135,7 +135,6 @@ def pytest_collection_modifyitems(items):
         # Precise check: only process parameterized tests with parameter name 'params'
         if hasattr(item, "callspec") and "params" in item.callspec.params:
             case_data = item.callspec.params["params"]
-            print("-->", case_data)
 
             # Extract case name (priority: business fields > first value > type name)
             if isinstance(case_data, dict):
