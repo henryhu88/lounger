@@ -20,7 +20,7 @@ Next generation automated testing framework.
 
 lounger不是一个从零开始的自动化测试框架，建立在`pytest`生态的基础上，提供更加简单、方便的使用体验。
 
-![](./images/framework.png)
+![](./images/framework_0.9.0.png)
 
 ## Install
 
@@ -91,7 +91,7 @@ Options:
 ### 测试报告
 
 * lounger集成`pytest-xhtml`，直接生成测试报告。
-  ![](./images/result_0.3.0.png)
+  ![](./images/result_0.4.0.png)
 
 ## 项目&文档&示例
 
