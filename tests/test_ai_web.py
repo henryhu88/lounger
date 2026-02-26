@@ -13,19 +13,21 @@ def ai(page):
     return ai_fixture(page)
 
 
-def test_bing_search(page: Page, ai):
+def test_bing_search_with_ai(page: Page, ai):
+    """使用AI执行搜索测试"""
     # 访问必应
     page.goto("https://cn.bing.com")
-
-    # 使用AI执行搜索
-    ai.ai_action('搜索输入框输入"playwright"关键字，并回车')
-    page.wait_for_timeout(3000)
+    
+    # 方法1: 分步执行确保回车被触发
+    ai.ai_action('在搜索输入框中输入"playwright"')
+    page.wait_for_timeout(3000)  # 等待输入完成
+    
+    ai.ai_action('按下回车键执行搜索')
+    page.wait_for_timeout(3000)  # 等待搜索结果加载
 
     # 使用AI查询搜索结果
     items = ai.ai_query('string[], 搜索结果列表中包含"playwright"相关的标题')
 
-    # 验证结果
-    assert len(items) > 1
-
     # 使用AI断言
+    assert len(items) > 1
     assert ai.ai_assert('检查搜索结果列表第一条标题是否包含"playwright"字符串')

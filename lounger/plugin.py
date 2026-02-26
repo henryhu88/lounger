@@ -124,3 +124,45 @@ def pytest_addoption(parser: Any) -> None:
         default=[],
         help="only run tests matching the environment {name}.",
     )
+
+
+
+def pytest_collection_modifyitems(items):
+    """
+    Dynamically set Description for parameterized test cases.
+    """
+    for item in items:
+        # Precise check: only process parameterized tests with parameter name 'params'
+        if hasattr(item, "callspec") and "params" in item.callspec.params:
+            case_data = item.callspec.params["params"]
+
+            # Extract case name (priority: business fields > first value > type name)
+            if isinstance(case_data, dict):
+                # Prefer explicit description fields
+                for key in ("case_name", "desc", "description", "name"):
+                    if key in case_data:
+                        case_name = str(case_data[key])
+                        break
+                else:
+                    case_name = str(next(iter(case_data.values()), "")) if case_data else ""
+            elif isinstance(case_data, (list, tuple)):
+                case_name = str(case_data[0]) if case_data else ""
+            else:
+                case_name = str(case_data) if case_data is not None else "none"
+
+            # Create a new function object with updated docstring
+            func = item._obj
+            new_func = type(func)(
+                func.__code__,
+                func.__globals__,
+                name=func.__name__,
+                argdefs=func.__defaults__,
+                closure=func.__closure__
+            )
+            # Copy original function attributes
+            new_func.__dict__.update(func.__dict__)
+            # Safely append case name to docstring (handle None cases)
+            new_func.__doc__ = (func.__doc__ or "") + " | " + case_name
+
+            # Replace the test item's function object
+            item._obj = new_func
