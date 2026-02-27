@@ -139,7 +139,7 @@ def pytest_collection_modifyitems(items):
             # Extract case name (priority: business fields > first value > type name)
             if isinstance(case_data, dict):
                 # Prefer explicit description fields
-                for key in ("case_name", "desc", "description", "name"):
+                for key in ("test_case", "test_scene"):
                     if key in case_data:
                         case_name = str(case_data[key])
                         break
