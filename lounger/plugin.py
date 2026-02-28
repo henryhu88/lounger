@@ -1,3 +1,5 @@
+import json
+import os
 from datetime import datetime, timezone
 from io import StringIO
 from typing import Any
@@ -124,10 +126,14 @@ def pytest_addoption(parser: Any) -> None:
         default=[],
         help="only run tests matching the environment {name}.",
     )
+    group.addoption(
+        "--run-json",
+        action="store",
+        help="Pass the JSON of the use case to be executed."
+    )
 
 
-
-def pytest_collection_modifyitems(items):
+def pytest_collection_modifyitems(config, items):
     """
     Dynamically set Description for parameterized test cases.
     """
@@ -166,3 +172,32 @@ def pytest_collection_modifyitems(items):
 
             # Replace the test item's function object
             item._obj = new_func
+
+    json_path = config.getoption("--run-json")
+    if not json_path:
+        return
+
+    if not os.path.exists(json_path):
+        pytest.exit(f"JSON file not found: {json_path}")
+
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            target_list = json.load(f)
+
+        target_nodeids = [item["nodeid"] for item in target_list]
+    except Exception as e:
+        pytest.exit(f"JSON parsing failed: {e}")
+
+    # Create a mapping table
+    mapping = {item.nodeid: item for item in items}
+
+    # Build a new execution queue in the order of `target_nodeids`
+    selected_items = []
+    for nodeid in target_nodeids:
+        if nodeid in mapping:
+            selected_items.append(mapping[nodeid])
+        else:
+            log.warning(f"No example was found, skipping execution: {nodeid}")
+
+    # Core: Update the pending execution queue of pytest in place
+    items[:] = selected_items
