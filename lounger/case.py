@@ -89,8 +89,10 @@ def execute_teststeps(teststeps: Dict) -> None:
     this_file_path = Path(ins.filename).resolve()
 
     for i, step in enumerate(test_steps):
-        step_name = step.get("name", f"step_{i + 1}")
-        log.info(f"🔹 Executing step {i + 1}/{len(teststeps)}: {step_name}")
+        step_name = step.get("name", None)
+        if step_name is None:
+            step_name = step.get("step", f"step_{i + 1}")
+        log.info(f"🔹 Executing step {i + 1}/{len(test_steps)}: {step_name}")
         # execute pre script
         if step.get('prescript'):
             execute_script(this_file_path, step.get('prescript'))
