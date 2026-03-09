@@ -186,6 +186,40 @@ pytest 对于这一设计理念体现的比较明显。
           - [ "body.id", 1 ] 
 ```
 
+### 断言表达式规则（推荐写法）
+
+`validate` 中每条断言都是 `[expr, expected]`，`expr` 支持以下语法：
+
+- `status_code`：响应状态码。
+- `headers.<key>`：响应头，例如 `headers.Content-Type`。
+- `cookies.<key>`：响应 Cookie，例如 `cookies.sessionid`。
+- `body.<jmespath>`：对 JSON 响应体做 JMESPath 提取（推荐）。
+- `json.<jmespath>`：`body.` 的等价别名。
+- `url` / `reason` / `encoding` / `text` / `content` / `ok`：响应对象字段。
+- `elapsed` / `elapsed.total_seconds`：响应耗时。
+- `request.method` / `request.url` / `request.body` / `request.headers.<key>`：请求对象字段。
+
+注意：
+
+- 不带前缀的表达式（例如 `code`）默认按字面值处理，不会自动从响应体提取。
+- 为避免歧义，建议 JSON 字段统一写成 `body.code`、`body.data.name` 这种明确前缀形式。
+
+示例：
+
+```yaml
+- teststeps:
+    - step: assert response fields
+      request:
+        method: GET
+        url: /posts/1
+      validate:
+        equal:
+          - [ "status_code", 200 ]
+          - [ "body.id", 1 ]
+          - [ "headers.Content-Type", "application/json; charset=utf-8" ]
+          - [ "url", "https://jsonplaceholder.typicode.com/posts/1" ]
+```
+
 ## 主运行文件
 
 > 既然要实现YAML管理测试用例，为什么还要提供这么个代码文件，其实所谓无代码，只是利用了pytest的参数化，测试用例通过YAML数据文件描述，最终交给
