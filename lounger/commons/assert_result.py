@@ -43,10 +43,48 @@ def _get_actual_value(resp: requests.Response, expr: str):
     if isinstance(expr, str):
         if expr == "status_code":
             return resp.status_code
+        elif expr == "url":
+            return resp.url
+        elif expr == "reason":
+            return resp.reason
+        elif expr == "encoding":
+            return resp.encoding
+        elif expr == "text":
+            return resp.text
+        elif expr == "content":
+            return resp.content
+        elif expr == "ok":
+            return resp.ok
+        elif expr == "elapsed":
+            return resp.elapsed
+        elif expr == "elapsed.total_seconds":
+            return resp.elapsed.total_seconds()
         elif expr.startswith("headers."):
             header_key = expr[8:]
             return resp.headers.get(header_key)
+        elif expr.startswith("cookies."):
+            cookie_key = expr[8:]
+            return resp.cookies.get(cookie_key)
+        elif expr.startswith("request."):
+            req = resp.request
+            if req is None:
+                return None
+            request_expr = expr[8:]
+            if request_expr == "method":
+                return req.method
+            elif request_expr == "url":
+                return req.url
+            elif request_expr == "body":
+                return req.body
+            elif request_expr.startswith("headers."):
+                header_key = request_expr[8:]
+                return req.headers.get(header_key)
+            return expr
         elif expr.startswith("body."):
+            jmes_expr = expr[5:]
+            json_data = resp.json()
+            return jmespath.jmespath(json_data, jmes_expr)
+        elif expr.startswith("json."):
             jmes_expr = expr[5:]
             json_data = resp.json()
             return jmespath.jmespath(json_data, jmes_expr)

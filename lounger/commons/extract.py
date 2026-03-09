@@ -16,7 +16,6 @@ def _save_extracted_values(key: str, result: Any) -> None:
     """
     if isinstance(result, list):
         for i, item in enumerate(result):
-            cache.set()
             cache.set({f"{key}_{i}": item})
     else:
         cache.set({key: result})
