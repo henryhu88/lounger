@@ -63,8 +63,12 @@ def create_scaffold(project_name: str, type: str) -> None:
 
     if type == "web":
         file_mappings.extend([
+            (template_base / "web" / ".env", ".env"),
+            (template_base / "web" / "README.md", "README.md"),
             (template_base / "web" / "pytest.ini", "pytest.ini"),
             (template_base / "__init__.py", "test_dir/__init__.py"),
+            (template_base / "web" / "test_dir" / "conftest.py", "test_dir/conftest.py"),
+            (template_base / "web" / "test_dir" / "test_sample.py", "test_dir/test_ai_sample.py"),
             (template_base / "web" / "test_dir" / "test_sample.py", "test_dir/test_sample.py")
         ])
 
