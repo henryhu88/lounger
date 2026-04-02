@@ -70,12 +70,23 @@ def create_scaffold(project_name: str, type: str) -> None:
 
     elif type == "api":
         file_mappings.extend([
+            (template_base / "api" / "SKILL.md", "SKILL.md"),
             (template_base / "api" / "pytest.ini", "pytest.ini"),
             (template_base / "api" / "test_api.py", "test_api.py"),
+            (template_base / "__init__.py", "api/__init__.py"),
+            (template_base / "__init__.py", "api/clients/__init__.py"),
+            (template_base / "__init__.py", "test_dir/__init__.py"),
+            (template_base / "__init__.py", "test_dir/posts_case/__init__.py"),
             (template_base / "api" / "config" / "config.yaml", "config/config.yaml"),
             (template_base / "api" / "datas" / "sample" / "test_sample.yaml", "datas/sample/test_sample.yaml"),
-            (template_base / "__init__.py", "test_dir/__init__.py"),
-            (template_base / "api" / "test_dir" / "test_sample.py", "test_dir/test_sample.py"),
+            (template_base / "api" / "api" / "clients" / "posts_api.py", "api/clients/posts_api.py"),
+            (template_base / "api" / "test_dir" / "conftest.py", "test_dir/conftest.py"),
+            (template_base / "api" / "test_dir" / "posts_case" / "test_get_post.py",
+             "test_dir/posts_case/test_get_post.py"),
+            (template_base / "api" / "test_dir" / "posts_case" / "test_create_post.py",
+             "test_dir/posts_case/test_create_post.py"),
+            (template_base / "api" / "test_dir" / "test_data" / "create_post_payload.json",
+             "test_dir/test_data/create_post_payload.json"),
         ])
     else:
         log.error(f"Unsupported project type: {type}. Choose from 'api', 'web'.")
