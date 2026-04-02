@@ -137,7 +137,8 @@ class RequestClient:
                 "GET": self._session.get,
                 "POST": self._session.post,
                 "PUT": self._session.put,
-                "DELETE": self._session.delete
+                "DELETE": self._session.delete,
+                "PATCH": self._session.patch
             }
 
             if method not in method_handlers:
