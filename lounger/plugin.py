@@ -9,7 +9,7 @@ from pytest_req.log import log_cfg
 
 from lounger import __version__
 from lounger.log import log
-from lounger.pytest_extend import screenshot_base64
+from lounger.pytest_extend.screenshot import screenshot_base64
 
 LOG_STREAM = StringIO()
 

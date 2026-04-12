@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from pytest_req.log import log
 
-from lounger.pytest_extend import conversion
+from lounger.pytest_extend.conversion import csv_to_list, excel_to_list, json_to_list, yaml_to_list
 from lounger.config import Lounger
 
 __all__ = [
@@ -135,13 +135,13 @@ def file_data(file: str, line: int = 1, sheet: str = "Sheet1", key: str = None, 
 
     suffix = file.split(".")[-1]
     if suffix == "csv":
-        data_list = conversion.csv_to_list(file_path, line=line, end_line=end_line)
+        data_list = csv_to_list(file_path, line=line, end_line=end_line)
     elif suffix == "xlsx":
-        data_list = conversion.excel_to_list(file_path, sheet=sheet, line=line, end_line=end_line)
+        data_list = excel_to_list(file_path, sheet=sheet, line=line, end_line=end_line)
     elif suffix == "json":
-        data_list = conversion.json_to_list(file_path, key=key)
+        data_list = json_to_list(file_path, key=key)
     elif suffix == "yaml":
-        data_list = conversion.yaml_to_list(file_path, key=key)
+        data_list = yaml_to_list(file_path, key=key)
     else:
         raise FileExistsError(f"Your file is not supported: {file}")
 
