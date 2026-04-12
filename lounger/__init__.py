@@ -19,4 +19,4 @@
 
 from .pytest_extend.params import data, file_data
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
