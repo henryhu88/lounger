@@ -1,0 +1,153 @@
+from lounger.db_operation.fabric_tunnel import FabricSSHTunnel
+from lounger.db_operation.mysql_db import MySQLDB
+
+
+class DummyTunnelContext:
+
+    def __init__(self):
+        self.entered = False
+        self.exited = False
+
+    def __enter__(self):
+        self.entered = True
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.exited = True
+
+
+class DummyConnection:
+    last_init = None
+    last_forward = None
+    closed = False
+    tunnel_ctx = None
+
+    def __init__(self, host, port, user, connect_kwargs):
+        DummyConnection.last_init = {
+            "host": host,
+            "port": port,
+            "user": user,
+            "connect_kwargs": connect_kwargs,
+        }
+
+    def forward_local(self, local_port, remote_port, remote_host):
+        DummyConnection.last_forward = {
+            "local_port": local_port,
+            "remote_port": remote_port,
+            "remote_host": remote_host,
+        }
+        DummyConnection.tunnel_ctx = DummyTunnelContext()
+        return DummyConnection.tunnel_ctx
+
+    def close(self):
+        DummyConnection.closed = True
+
+
+class DummyDBConnection:
+
+    def close(self):
+        self.closed = True
+
+
+def test_fabric_ssh_tunnel_start_and_close(monkeypatch):
+    monkeypatch.setattr(FabricSSHTunnel, "_get_connection_cls", staticmethod(lambda: DummyConnection))
+
+    tunnel = FabricSSHTunnel(
+        ssh_host="jump.example.com",
+        ssh_port=22,
+        ssh_user="tester",
+        ssh_private_key="~/.ssh/id_rsa",
+        remote_host="mysql.internal",
+        remote_port=3306,
+        local_port=23306,
+    )
+
+    local_port = tunnel.start()
+
+    assert local_port == 23306
+    assert DummyConnection.last_init["host"] == "jump.example.com"
+    assert DummyConnection.last_init["connect_kwargs"]["key_filename"].endswith(".ssh/id_rsa")
+    assert DummyConnection.last_forward == {
+        "local_port": 23306,
+        "remote_port": 3306,
+        "remote_host": "mysql.internal",
+    }
+    assert DummyConnection.tunnel_ctx.entered is True
+
+    tunnel.close()
+
+    assert DummyConnection.tunnel_ctx.exited is True
+    assert DummyConnection.closed is True
+
+
+def test_mysql_from_ssh_tunnel(monkeypatch):
+    tunnel_state = {"started": False, "closed": False, "kwargs": None}
+
+    class FakeTunnel:
+        def __init__(self, **kwargs):
+            tunnel_state["kwargs"] = kwargs
+
+        def start(self):
+            tunnel_state["started"] = True
+            return 23306
+
+        def close(self):
+            tunnel_state["closed"] = True
+
+    def fake_connect(**kwargs):
+        fake_connect.kwargs = kwargs
+        return DummyDBConnection()
+
+    monkeypatch.setattr("lounger.db_operation.mysql_db.FabricSSHTunnel", FakeTunnel)
+    monkeypatch.setattr("lounger.db_operation.mysql_db.pymysql.connect", fake_connect)
+
+    db = MySQLDB.from_ssh_tunnel(
+        ssh_host="jump.example.com",
+        ssh_port=22,
+        ssh_user="tester",
+        ssh_private_key="~/.ssh/id_rsa",
+        ssh_password=None,
+        ssh_timeout=15,
+        remote_db_host="mysql.internal",
+        remote_db_port=3306,
+        db_user="dbuser",
+        db_password="dbpass",
+        db_database="demo",
+        db_charset="utf8mb4",
+        local_port=13306,
+    )
+
+    assert tunnel_state["started"] is True
+    assert tunnel_state["kwargs"]["remote_host"] == "mysql.internal"
+    assert tunnel_state["kwargs"]["timeout"] == 15
+    assert fake_connect.kwargs["host"] == "127.0.0.1"
+    assert fake_connect.kwargs["port"] == 23306
+    assert fake_connect.kwargs["user"] == "dbuser"
+    assert fake_connect.kwargs["database"] == "demo"
+
+    db.close()
+
+    assert tunnel_state["closed"] is True
+
+
+def test_mysql_direct_connection(monkeypatch):
+    def fake_connect(**kwargs):
+        fake_connect.kwargs = kwargs
+        return DummyDBConnection()
+
+    monkeypatch.setattr("lounger.db_operation.mysql_db.pymysql.connect", fake_connect)
+
+    db = MySQLDB(
+        host="db.example.com",
+        port=3307,
+        user="dbuser",
+        password="dbpass",
+        database="demo",
+        charset="latin1",
+    )
+
+    assert fake_connect.kwargs["host"] == "db.example.com"
+    assert fake_connect.kwargs["port"] == 3307
+    assert fake_connect.kwargs["charset"] == "latin1"
+
+    db.close()

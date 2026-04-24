@@ -1,11 +1,12 @@
 """
 MySQL DB API
 """
-from typing import Any
+from typing import Any, Optional
 
 import pymysql.cursors
 
 from lounger.db_operation.base_db import SQLBase
+from lounger.db_operation.fabric_tunnel import FabricSSHTunnel
 
 
 class MySQLDB(SQLBase):
@@ -27,12 +28,65 @@ class MySQLDB(SQLBase):
                                           database=database,
                                           charset=charset,
                                           cursorclass=pymysql.cursors.DictCursor)
+        self._ssh_tunnel: Optional[FabricSSHTunnel] = None
+
+    @classmethod
+    def from_ssh_tunnel(
+            cls,
+            ssh_host: str,
+            ssh_port: int,
+            ssh_user: str,
+            remote_db_host: str,
+            remote_db_port: int,
+            db_user: str,
+            db_password: str,
+            db_database: str,
+            db_charset: str = "utf8mb4",
+            ssh_private_key: Optional[str] = None,
+            ssh_password: Optional[str] = None,
+            local_port: Optional[int] = None,
+            ssh_timeout: int = 10,
+    ) -> "MySQLDB":
+        """
+        Create a MySQL connection through a Fabric SSH tunnel
+        """
+        ssh_tunnel = FabricSSHTunnel(
+            ssh_host=ssh_host,
+            ssh_port=ssh_port,
+            ssh_user=ssh_user,
+            ssh_private_key=ssh_private_key,
+            ssh_password=ssh_password,
+            remote_host=remote_db_host,
+            remote_port=remote_db_port,
+            local_port=local_port,
+            timeout=ssh_timeout,
+        )
+        tunnel_port = ssh_tunnel.start()
+        db = cls(
+            host="127.0.0.1",
+            port=tunnel_port,
+            user=db_user,
+            password=db_password,
+            database=db_database,
+            charset=db_charset,
+        )
+        db._ssh_tunnel = ssh_tunnel
+        return db
 
     def close(self) -> None:
         """
         Close the database connection
         """
         self.connection.close()
+        if self._ssh_tunnel is not None:
+            self._ssh_tunnel.close()
+            self._ssh_tunnel = None
+
+    def __enter__(self) -> "MySQLDB":
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.close()
 
     def execute_sql(self, sql: str) -> None:
         """
