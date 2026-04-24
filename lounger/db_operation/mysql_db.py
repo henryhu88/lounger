@@ -46,6 +46,7 @@ class MySQLDB(SQLBase):
             ssh_password: Optional[str] = None,
             local_port: Optional[int] = None,
             ssh_timeout: int = 10,
+            tunnel_ready_timeout: float = 5.0,
     ) -> "MySQLDB":
         """
         Create a MySQL connection through a Fabric SSH tunnel
@@ -60,16 +61,22 @@ class MySQLDB(SQLBase):
             remote_port=remote_db_port,
             local_port=local_port,
             timeout=ssh_timeout,
+            ready_timeout=tunnel_ready_timeout,
         )
         tunnel_port = ssh_tunnel.start()
-        db = cls(
-            host="127.0.0.1",
-            port=tunnel_port,
-            user=db_user,
-            password=db_password,
-            database=db_database,
-            charset=db_charset,
-        )
+        try:
+            db = cls(
+                host="127.0.0.1",
+                port=tunnel_port,
+                user=db_user,
+                password=db_password,
+                database=db_database,
+                charset=db_charset,
+            )
+        except Exception:
+            ssh_tunnel.close()
+            raise
+
         db._ssh_tunnel = ssh_tunnel
         return db
 

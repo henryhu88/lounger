@@ -51,6 +51,7 @@ class DummyDBConnection:
 
 def test_fabric_ssh_tunnel_start_and_close(monkeypatch):
     monkeypatch.setattr(FabricSSHTunnel, "_get_connection_cls", staticmethod(lambda: DummyConnection))
+    monkeypatch.setattr(FabricSSHTunnel, "_wait_until_ready", lambda self: None)
 
     tunnel = FabricSSHTunnel(
         ssh_host="jump.example.com",
@@ -126,6 +127,44 @@ def test_mysql_from_ssh_tunnel(monkeypatch):
     assert fake_connect.kwargs["database"] == "demo"
 
     db.close()
+
+    assert tunnel_state["closed"] is True
+
+
+def test_mysql_from_ssh_tunnel_closes_tunnel_when_db_connect_fails(monkeypatch):
+    tunnel_state = {"closed": False}
+
+    class FakeTunnel:
+        def __init__(self, **kwargs):
+            pass
+
+        def start(self):
+            return 23306
+
+        def close(self):
+            tunnel_state["closed"] = True
+
+    def fake_connect(**kwargs):
+        raise RuntimeError("db connect failed")
+
+    monkeypatch.setattr("lounger.db_operation.mysql_db.FabricSSHTunnel", FakeTunnel)
+    monkeypatch.setattr("lounger.db_operation.mysql_db.pymysql.connect", fake_connect)
+
+    try:
+        MySQLDB.from_ssh_tunnel(
+            ssh_host="jump.example.com",
+            ssh_port=22,
+            ssh_user="tester",
+            remote_db_host="mysql.internal",
+            remote_db_port=3306,
+            db_user="dbuser",
+            db_password="dbpass",
+            db_database="demo",
+        )
+    except RuntimeError as e:
+        assert str(e) == "db connect failed"
+    else:
+        raise AssertionError("Expected db connect failure")
 
     assert tunnel_state["closed"] is True
 

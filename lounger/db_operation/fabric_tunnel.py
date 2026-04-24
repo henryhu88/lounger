@@ -2,6 +2,7 @@
 Fabric SSH tunnel helpers for database connections.
 """
 import socket
+import time
 from pathlib import Path
 from typing import Any, Optional
 
@@ -34,6 +35,8 @@ class FabricSSHTunnel:
             ssh_password: Optional[str] = None,
             local_port: Optional[int] = None,
             timeout: int = 10,
+            ready_timeout: float = 5.0,
+            ready_interval: float = 0.1,
     ):
         self.ssh_host = ssh_host
         self.ssh_port = int(ssh_port)
@@ -44,8 +47,33 @@ class FabricSSHTunnel:
         self.ssh_password = ssh_password
         self.local_port = int(local_port) if local_port is not None else get_free_port()
         self.timeout = int(timeout)
+        self.ready_timeout = float(ready_timeout)
+        self.ready_interval = float(ready_interval)
         self._connection = None
         self._tunnel_ctx = None
+
+    def _wait_until_ready(self) -> None:
+        """
+        Wait until the local forwarded port starts accepting connections.
+        """
+        deadline = time.time() + self.ready_timeout
+        last_error = None
+        while time.time() < deadline:
+            probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                probe.settimeout(self.ready_interval)
+                probe.connect(("127.0.0.1", self.local_port))
+                return
+            except OSError as e:
+                last_error = e
+                time.sleep(self.ready_interval)
+            finally:
+                probe.close()
+
+        raise TimeoutError(
+            f"Fabric SSH tunnel local port 127.0.0.1:{self.local_port} "
+            f"is not ready within {self.ready_timeout}s: {last_error}"
+        )
 
     @staticmethod
     def _get_connection_cls():
@@ -86,6 +114,7 @@ class FabricSSHTunnel:
             remote_host=self.remote_host,
         )
         self._tunnel_ctx.__enter__()
+        self._wait_until_ready()
         log.info(
             f"🔐 Fabric SSH tunnel started: 127.0.0.1:{self.local_port} -> "
             f"{self.remote_host}:{self.remote_port}"
