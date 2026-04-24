@@ -38,6 +38,7 @@ class MySQLDB(SQLBase):
         """
         Execute SQL
         """
+        self.log_execute_sql(sql)
         with self.connection.cursor() as cursor:
             self.connection.ping(reconnect=True)
             if "delete" in sql.lower()[0:6]:
@@ -50,6 +51,7 @@ class MySQLDB(SQLBase):
         Query SQL
         return: query data
         """
+        self.log_execute_sql(sql)
         data_list = []
         with self.connection.cursor() as cursor:
             self.connection.ping(reconnect=True)
@@ -58,6 +60,7 @@ class MySQLDB(SQLBase):
             for row in rows:
                 data_list.append(row)
             self.connection.commit()
+            self.log_query_result(sql, data_list)
             return data_list
 
     def query_one(self, sql: str) -> Any:
@@ -65,11 +68,13 @@ class MySQLDB(SQLBase):
         Query one data SQL
         :return:
         """
+        self.log_execute_sql(sql)
         with self.connection.cursor() as cursor:
             self.connection.ping(reconnect=True)
             cursor.execute(sql)
             row = cursor.fetchone()
             self.connection.commit()
+            self.log_query_result(sql, row)
             return row
 
     def insert_get_last_id(self, sql: str) -> int:
@@ -78,6 +83,7 @@ class MySQLDB(SQLBase):
         :param sql:
         :return:
         """
+        self.log_execute_sql(sql)
         with self.connection.cursor() as cursor:
             self.connection.ping(reconnect=True)
             cursor.execute(sql)

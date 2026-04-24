@@ -32,7 +32,7 @@ class PostgresDB(SQLBase):
         """
         Execute SQL
         """
-        print("runner SQL ", sql)
+        self.log_execute_sql(sql)
         with self.connection.cursor() as cursor:
             cursor.execute(sql)
 
@@ -42,21 +42,25 @@ class PostgresDB(SQLBase):
         :return: query data
 
         """
+        self.log_execute_sql(sql)
         data_list = []
         with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
             cursor.execute(sql)
             rows = cursor.fetchall()
             for row in rows:
                 data_list.append(row)
+            self.log_query_result(sql, data_list)
             return data_list
 
     def query_one(self, sql: str) -> Any:
         """
         Query one row
         """
+        self.log_execute_sql(sql)
         with self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
             cursor.execute(sql)
             row = cursor.fetchone()
+            self.log_query_result(sql, row)
             return row
 
     def insert_get_last_id(self, sql: str) -> int:
@@ -65,6 +69,7 @@ class PostgresDB(SQLBase):
         :param sql:
         :return:
         """
+        self.log_execute_sql(sql)
         with self.connection.cursor() as cursor:
             cursor.execute(sql)
             last_id = cursor.lastrowid

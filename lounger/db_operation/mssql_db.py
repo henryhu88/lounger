@@ -40,7 +40,7 @@ class MSSQLDB(SQLBase):
         """
         Execute SQL
         """
-        print("running sql ", sql)
+        self.log_execute_sql(sql)
         with self.connection.cursor() as cursor:
             cursor.execute(sql)
         self.connection.commit()
@@ -50,6 +50,7 @@ class MSSQLDB(SQLBase):
         Query SQL
         return: query data
         """
+        self.log_execute_sql(sql)
         data_list = []
         with self.connection.cursor() as cursor:
             cursor.execute(sql)
@@ -57,6 +58,7 @@ class MSSQLDB(SQLBase):
             for row in rows:
                 data_list.append(row)
             self.connection.commit()
+            self.log_query_result(sql, data_list)
             return data_list
 
     def query_one(self, sql: str) -> Any:
@@ -64,10 +66,12 @@ class MSSQLDB(SQLBase):
         Query one data SQL
         :return:
         """
+        self.log_execute_sql(sql)
         with self.connection.cursor() as cursor:
             cursor.execute(sql)
             row = cursor.fetchone()
             self.connection.commit()
+            self.log_query_result(sql, row)
             return row
 
     def insert_get_last_id(self, sql: str) -> int:
@@ -76,6 +80,7 @@ class MSSQLDB(SQLBase):
         :param sql:
         :return:
         """
+        self.log_execute_sql(sql)
         with self.connection.cursor() as cursor:
             cursor.execute(sql)
             last_id = cursor.lastrowid

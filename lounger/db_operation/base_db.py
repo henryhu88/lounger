@@ -1,10 +1,27 @@
 """
 SQL API
 """
+from typing import Any
+
+from lounger.log import log
 
 
 class SQLBase:
     """SQL base API"""
+
+    @staticmethod
+    def log_execute_sql(sql: str) -> None:
+        """
+        Log SQL before execution
+        """
+        log.info(f"🗄️ Execute SQL: {sql}")
+
+    @staticmethod
+    def log_query_result(sql: str, result: Any) -> None:
+        """
+        Log query result after execution
+        """
+        log.info(f"📥 Query result for SQL [{sql}]: {result}")
 
     @staticmethod
     def dict_to_str(data: dict) -> str:
