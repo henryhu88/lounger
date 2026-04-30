@@ -60,22 +60,22 @@ class DingDingWebhook:
 
         content = (
             f"{title}\n"
-            f"📊 Total:  {total}\n"
-            f"✅ Passed:  {passed}\n"
-            f"❌ Failed:  {failed}\n"
-            f"⚠️ Errors:  {errors}\n"
-            f"⏭️ Skipped:  {skipped}\n"
-            f"📈 Success Rate:  {success_rate}%\n"
-            "--------------------------------------------\n"
-            "Note: Success Rate = (Passed + Skipped) / Total"
+            f"--------------------------\n"
+            f"📊 Total: {total}\n"
+            f"✅ Passed: {passed}\n"
+            f"❌ Failed: {failed}\n"
+            f"⚠️ Errors: {errors}\n"
+            f"⏭️ Skipped: {skipped}\n"
+            f"📈 Success Rate: {success_rate}%\n"
+            f"--------------------------\n"
+            f"Note: Success Rate = (Passed + Skipped) / Total"
         )
 
         payload = {
-            "msgtype": "markdown",
-            "markdown": {
-                "title": f"#{title}",
-                "text": content
-            },
+            "msgtype": "text",
+            "text": {
+                "content": content
+            }
         }
 
         try:
