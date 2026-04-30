@@ -3,7 +3,6 @@ import hashlib
 import hmac
 import time
 import urllib.parse
-from typing import Any, Optional
 
 import requests
 
@@ -23,6 +22,10 @@ class DingDingWebhook:
         self.webhook_url = webhook_url
         self.secret = secret
 
+    def is_configured(self) -> bool:
+        """Check whether a valid webhook URL has been configured."""
+        return bool(self.webhook_url)
+
     def _get_signed_webhook_url(self) -> str:
         """
         Generate a signed webhook URL with current timestamp and signature.
@@ -37,49 +40,50 @@ class DingDingWebhook:
         sign = urllib.parse.quote_plus(base64.b64encode(hmac_code).decode("utf-8"))
         return f"{self.webhook_url}&timestamp={timestamp}&sign={sign}"
 
-    def send_autotest_report(self, result: Any, title: str = None, text: Optional[str] = None) -> None:
+    def send_summary(self, result, title: str = "Lounger Auto Test Summary") -> None:
+        """Send a text summary of test results via DingTalk.
+
+        :param result: pytest terminalreporter object (expects ``_numcollected`` and ``stats``).
+        :param title: Custom title for the summary.
         """
-        Send an automated test report via DingTalk markdown message.
+        if not self.is_configured():
+            log.warning("DingTalk webhook not configured, skip notification.")
+            return
 
-        :param result: Test result object (e.g., from pytest), expected to have `_numcollected` and `stats`.
-        :param title: Message title.
-        :param text: Custom markdown text. If not provided, auto-generate from result.
-        """
-        if title is None:
-            title = "接口自动化测试结果"
+        total = getattr(result, "_numcollected", 0)
+        stats = getattr(result, "stats", {})
+        passed = len(stats.get("passed", []))
+        failed = len(stats.get("failed", []))
+        errors = len(stats.get("error", []))
+        skipped = len(stats.get("skipped", []))
+        success_rate = round(((passed + skipped) / total) * 100, 2) if total else 0
 
-        if text is None:
-            total_cases = getattr(result, "_numcollected", 0)
-            stats = getattr(result, "stats", {})
-            passed = len(stats.get("passed", []))
-            failed = len(stats.get("failed", []))
-            error = len(stats.get("error", []))
-            skipped = len(stats.get("skipped", []))
-            report_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        content = (
+            f"{title}\n"
+            f"📊 Total:  {total}\n"
+            f"✅ Passed:  {passed}\n"
+            f"❌ Failed:  {failed}\n"
+            f"⚠️ Errors:  {errors}\n"
+            f"⏭️ Skipped:  {skipped}\n"
+            f"📈 Success Rate:  {success_rate}%\n"
+            "--------------------------------------------\n"
+            "Note: Success Rate = (Passed + Skipped) / Total"
+        )
 
-            text = (
-                f"#### {title} \n"
-                f"  > ###### 用例总数：{total_cases}\n"
-                f" > ###### 成功用例数量：{passed}\n"
-                f" > ###### 失败用例数量：{failed}\n"
-                f" > ###### 报错用例数量：{error}\n"
-                f" > ###### 跳过用例数量：{skipped} \n"
-                f" > ###### 报告生成时间：{report_time}"
-            )
-
-        data = {
+        payload = {
             "msgtype": "markdown",
             "markdown": {
                 "title": f"#{title}",
-                "text": text
+                "text": content
             },
         }
 
         try:
-            signed_url = self._get_signed_webhook_url()
-            requests.post(signed_url, json=data, timeout=10)
+            response = requests.post(self._get_signed_webhook_url(), json=payload, timeout=10)
+            response.raise_for_status()
+            log.info(f"DingTalk notification sent: {response.text}")
         except Exception as e:
-            log.error(e)
+            log.error(f"Failed to send DingTalk notification: {e}")
 
     def send_msg(self, title: str, text: str) -> None:
         """
