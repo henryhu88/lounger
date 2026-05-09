@@ -58,7 +58,7 @@ class MSSQLDB(SQLBase):
             for row in rows:
                 data_list.append(row)
             self.connection.commit()
-            self.log_query_result(sql, data_list)
+            self.log_query_result(data_list)
             return data_list
 
     def query_one(self, sql: str) -> Any:
@@ -71,7 +71,7 @@ class MSSQLDB(SQLBase):
             cursor.execute(sql)
             row = cursor.fetchone()
             self.connection.commit()
-            self.log_query_result(sql, row)
+            self.log_query_result(row)
             return row
 
     def insert_get_last_id(self, sql: str) -> int:
