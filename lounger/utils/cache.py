@@ -82,6 +82,7 @@ class Cache:
             with open(DATA_PATH, "r+", encoding="utf-8") as json_file:
                 save_data = json.load(json_file)
                 if name is None:
+                    log.info(f"💾 Get all cache data: {save_data}")
                     return save_data
 
                 value = save_data.get(name, None)
