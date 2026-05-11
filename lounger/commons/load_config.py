@@ -29,10 +29,23 @@ base_url = base_url()
 
 
 class LoadConfig:
+    # The config file is always at <project_root>/config/config.yaml.
+    _config_file_path = Path("config/config.yaml")
 
     def __init__(self):
-        config_file = ConfigUtils("config/config.yaml")
+        config_file = ConfigUtils(str(self._config_file_path))
         self.test_project = config_file.get_config("test_project")
+
+    @classmethod
+    def get_project_root(cls) -> str:
+        """
+        Return the project root directory, derived from config/config.yaml.
+
+        The config file is the framework's fixed anchor — always located at
+        <project_root>/config/config.yaml.  This method is independent of
+        case-file layout depth and works for any project structure.
+        """
+        return str(cls._config_file_path.resolve().parent.parent)
 
     def get_project_config(self) -> Tuple[List[str], List[str]]:
         """
