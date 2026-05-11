@@ -606,16 +606,25 @@ def cli_main():
     args = parser.parse_args()
 
     if args.project is None:
-        # Detect caller location to derive project root
+        # Detect caller location to derive project root.
         import inspect
         stack = inspect.stack()
-        caller_frame = stack[1]
-        caller_file = Path(inspect.getframeinfo(caller_frame[0]).filename).resolve()
-        if caller_file != Path(__file__).resolve():
-            # Called from a project launcher — use its parent dir
-            args.project = str(caller_file.parent)
-        else:
+        caller_file = Path(inspect.getframeinfo(stack[1][0]).filename).resolve()
+        this_file = Path(__file__).resolve()
+
+        if caller_file == this_file:
+            # Called directly (python -m lounger.web_runner) — use CWD
             args.project = "."
+        else:
+            # Called from a launcher script (console entry-point or
+            # project launcher like myapi/web_runner.py).
+            # If caller is a .py file inside a project directory, use
+            # its parent as the project root; otherwise fall back to CWD.
+            caller_dir = caller_file.parent
+            if caller_file.suffix == ".py" and (caller_dir / "config" / "config.yaml").exists():
+                args.project = str(caller_dir)
+            else:
+                args.project = "."
 
     main(host=args.host, port=args.port, scan_dir=args.project)
 
