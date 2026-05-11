@@ -17,11 +17,11 @@ class SQLBase:
         log.info(f"🗄️ Execute SQL: {sql}")
 
     @staticmethod
-    def log_query_result(sql: str, result: Any) -> None:
+    def log_query_result(result: Any) -> None:
         """
         Log query result after execution
         """
-        log.info(f"📥 Query result for SQL [{sql}]: {result}")
+        log.info(f"📥 Query result for SQL: {result}")
 
     @staticmethod
     def dict_to_str(data: dict) -> str:

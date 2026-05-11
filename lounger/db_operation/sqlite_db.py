@@ -53,7 +53,7 @@ class SQLiteDB(SQLBase):
         rows = self.cursor.fetchall()
         for row in rows:
             data_list.append(row)
-        self.log_query_result(sql, data_list)
+        self.log_query_result(data_list)
         return data_list
 
     def query_one(self, sql: str) -> Any:
@@ -64,7 +64,7 @@ class SQLiteDB(SQLBase):
         self.log_execute_sql(sql)
         self.cursor.execute(sql)
         row = self.cursor.fetchone()
-        self.log_query_result(sql, row)
+        self.log_query_result(row)
         return row
 
     def insert_get_last_id(self, sql: str) -> int:
