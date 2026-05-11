@@ -567,7 +567,7 @@ class _ThreadingHTTPServer(http.server.ThreadingHTTPServer):
     daemon_threads = True
 
 
-def main(host: str = "0.0.0.0", port: int = 5000, scan_dir: str = "."):
+def main(host: str = "127.0.0.1", port: int = 5000, scan_dir: str = "."):
     """Start the lounger web test runner.
 
     Args:
@@ -600,7 +600,7 @@ def cli_main():
     """
     import argparse
     parser = argparse.ArgumentParser(description="lounger web test runner")
-    parser.add_argument("--host", default="0.0.0.0", help="Bind address (default: 0.0.0.0)")
+    parser.add_argument("--host", default="127.0.0.1", help="Bind address (default: 127.0.0.1)")
     parser.add_argument("--port", type=int, default=5000, help="Port (default: 5000)")
     parser.add_argument("--project", default=None, help="Project root directory (default: auto-detect)")
     args = parser.parse_args()
