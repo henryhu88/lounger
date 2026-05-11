@@ -34,6 +34,7 @@ homepage = "https://github.com/SeldomQA/lounger"
 
 [project.scripts]
 lounger = "lounger.cli:main"
+lounger-runner = "lounger.web_runner:cli_main"
 
 [project.entry-points."pytest11"]
 lounger = "lounger.plugin"
