@@ -590,13 +590,33 @@ def main(host: str = "0.0.0.0", port: int = 5000, scan_dir: str = "."):
 
 
 def cli_main():
-    """CLI entry point with argparse."""
+    """CLI entry point with argparse.
+
+    Auto-detects the project root from the calling script.  When invoked
+    from a project launcher like ``myapi/web_runner.py``, the project
+    root is the directory containing that launcher.  When invoked directly
+    via ``python -m lounger.web_runner``, falls back to the current
+    directory.
+    """
     import argparse
     parser = argparse.ArgumentParser(description="lounger web test runner")
     parser.add_argument("--host", default="0.0.0.0", help="Bind address (default: 0.0.0.0)")
     parser.add_argument("--port", type=int, default=5000, help="Port (default: 5000)")
-    parser.add_argument("--project", default=".", help="Project root directory (default: .)")
+    parser.add_argument("--project", default=None, help="Project root directory (default: auto-detect)")
     args = parser.parse_args()
+
+    if args.project is None:
+        # Detect caller location to derive project root
+        import inspect
+        stack = inspect.stack()
+        caller_frame = stack[1]
+        caller_file = Path(inspect.getframeinfo(caller_frame[0]).filename).resolve()
+        if caller_file != Path(__file__).resolve():
+            # Called from a project launcher — use its parent dir
+            args.project = str(caller_file.parent)
+        else:
+            args.project = "."
+
     main(host=args.host, port=args.port, scan_dir=args.project)
 
 
