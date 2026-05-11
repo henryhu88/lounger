@@ -68,7 +68,7 @@ def load_test_cases() -> List[Tuple[str, List[Dict], str]]:
         log.warning("No test case paths configured.")
         return testcases
 
-    project_root = os.path.abspath(os.path.dirname(os.path.dirname(case_paths[0])))
+    project_root = lf.get_project_root()
 
     for file_path in case_paths:
         file_path = os.path.abspath(file_path)
