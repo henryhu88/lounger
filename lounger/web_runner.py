@@ -806,6 +806,10 @@ function renderTree() {
   }
   container.innerHTML = html;
   updateStats();
+  // Re-apply search filter if active (preserved across reloads)
+  if (document.getElementById('search').value) {
+    filterCases();
+  }
 }
 
 function renderNode(node, depth) {
