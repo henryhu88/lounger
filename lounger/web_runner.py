@@ -838,7 +838,12 @@ function renderNode(node, depth) {
     html += '<span class="tree-icon">📄</span>';
     html += '<span class="tree-label" title="' + esc(node.relpath || node.name) + '">' + esc(node.name);
     if (hasCases) html += ' <span class="count">(' + node.case_count + ')</span>';
-    html += '</span></div>';
+    html += '</span>';
+    if (hasCases) {
+      const idsJson = JSON.stringify(node.cases.map(c => c.nodeid));
+      html += '<button class="run-btn" data-ids=\'' + idsJson + '\' onclick="event.stopPropagation(); runFile(this.dataset.ids)" title="运行此文件全部用例">▶▶</button>';
+    }
+    html += '</div>';
     if (hasCases) {
       html += '<div class="tree-children show">';
       for (const c of node.cases) {
@@ -978,6 +983,10 @@ async function runAll() {
 
 async function runSingle(nodeid) {
   await startRun([nodeid]);
+}
+
+function runFile(nodeidsStr) {
+  startRun(JSON.parse(nodeidsStr));
 }
 
 async function startRun(nodeids) {
