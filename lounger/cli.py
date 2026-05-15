@@ -19,6 +19,7 @@ def main(ctx, project_web, project_api):
     """
     lounger — next generation automated testing framework.
 
+    \b
     Examples:
       lounger --project-web myproject
       lounger --project-api myproject
