@@ -41,10 +41,36 @@ Next generation automated testing framework. Supports API, Web, and AI automated
 
 ### 安装
 
+* 安装 lounger
+
 ```bash
 pip install lounger
 
 ```
+
+* 查看`lounger` 命令
+
+```bash
+lounger --help
+Usage: lounger [OPTIONS] COMMAND [ARGS]...
+
+  lounger — next generation automated testing framework.
+
+  Examples:
+    lounger --project-web myproject
+    lounger --project-api myproject
+    lounger runner --port 5002 --project ./myapi
+
+Options:
+  --version                Show version.
+  -pw, --project-web TEXT  Create a Web automation test project.
+  -pa, --project-api TEXT  Create an API automation test project.
+  --help                   Show this message and exit.
+
+Commands:
+  runner  Start the web test runner.
+```
+
 
 ### 创建新项目
 
@@ -75,8 +101,8 @@ pytest
 
 定制化测试运行器，更加方便的管理和运行测试用例。
 
-```
-lounger-runner --host 127.0.0.1 --port 5001
+```bash
+lounger runner --port 5001
 
 🚀 lounger web runner → http://127.0.0.0:5001
    Project: D:\github\seldomQA\lounger\myapi
