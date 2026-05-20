@@ -112,7 +112,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
     <span class="status-dot" id="statusDot"></span>
     <span id="statusText">就绪</span>
     <span style="flex:1"></span>
-    <button class="btn btn-outline" onclick="clearLogs()" id="clearBtn" style="display:none">清空日志</button>
+    <button class="btn btn-outline" onclick="copyLogs()" id="copyBtn" style="display:none">📋 复制日志</button>
+    <button class="btn btn-outline" onclick="clearLogs()" id="clearBtn" style="display:none">🧹 清空日志</button>
   </div>
   <div class="log-container" id="logContainer">
     <div class="log-placeholder">
@@ -369,6 +370,7 @@ async function startRun(nodeids) {
   currentRunId = data.run_id;
   document.getElementById('statusDot').className = 'status-dot running';
   document.getElementById('statusText').textContent = '运行中 (' + data.count + ' 用例)';
+  document.getElementById('copyBtn').style.display = '';
   document.getElementById('clearBtn').style.display = '';
   clearLogs();
 
@@ -405,6 +407,30 @@ async function startRun(nodeids) {
       eventSource = null;
     }
   };
+}
+
+function copyLogs() {
+  const el = document.getElementById('logContainer');
+  const text = el.innerText || '';
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    const orig = btn.textContent;
+    btn.textContent = '✅ 已复制';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  }).catch(() => {
+    // fallback for older browsers or non-HTTPS
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = document.getElementById('copyBtn');
+    const orig = btn.textContent;
+    btn.textContent = '✅ 已复制';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  });
 }
 
 function clearLogs() {
