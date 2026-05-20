@@ -122,6 +122,8 @@ class _RequestHandler(http.server.BaseHTTPRequestHandler):
             self._serve_json({"error": "No test cases selected"})
             return
 
+        verbosity = body.get("verbosity", "verbose")
+
         run_id = uuid.uuid4().hex[:8]
         log_queue: queue.Queue = queue.Queue()
 
@@ -134,7 +136,7 @@ class _RequestHandler(http.server.BaseHTTPRequestHandler):
                 "exit_code": None,
             }
 
-        t = threading.Thread(target=_execute_tests, args=(run_id, nodeids), daemon=True)
+        t = threading.Thread(target=_execute_tests, args=(run_id, nodeids, verbosity), daemon=True)
         t.start()
         self._serve_json({"run_id": run_id, "count": len(nodeids)})
 
@@ -144,9 +146,12 @@ class _RequestHandler(http.server.BaseHTTPRequestHandler):
         if not all_nodeids:
             self._serve_json({"error": "No test cases found"})
             return
-        self._start_run(all_nodeids)
 
-    def _start_run(self, nodeids: list[str]):
+        body = self._read_body()
+        verbosity = body.get("verbosity", "verbose")
+        self._start_run(all_nodeids, verbosity)
+
+    def _start_run(self, nodeids: list[str], verbosity: str = "verbose"):
         run_id = uuid.uuid4().hex[:8]
         log_queue: queue.Queue = queue.Queue()
 
@@ -159,7 +164,7 @@ class _RequestHandler(http.server.BaseHTTPRequestHandler):
                 "exit_code": None,
             }
 
-        t = threading.Thread(target=_execute_tests, args=(run_id, nodeids), daemon=True)
+        t = threading.Thread(target=_execute_tests, args=(run_id, nodeids, verbosity), daemon=True)
         t.start()
         self._serve_json({"run_id": run_id, "count": len(nodeids)})
 

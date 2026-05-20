@@ -11,7 +11,15 @@ from pathlib import Path
 from lounger.web_runner.state import _scan_dir, _active_runs, _runs_lock, _strip_ansi
 
 
-def _execute_tests(run_id: str, nodeids: list[str]) -> None:
+VERBOSITY_FLAGS = {
+    "quiet":   ["-q"],
+    "normal":  [],
+    "verbose": ["-v", "-s"],
+    "full":    ["-vv", "-s"],
+}
+
+
+def _execute_tests(run_id: str, nodeids: list[str], verbosity: str = "verbose") -> None:
     """Run pytest in a subprocess, push lines into the run queue."""
     cwd = str(Path(_scan_dir).resolve())
     tmpdir = Path(cwd) / "collected_cases"
@@ -21,10 +29,11 @@ def _execute_tests(run_id: str, nodeids: list[str]) -> None:
     target_payload = [{"nodeid": nid} for nid in nodeids]
     target_file.write_text(json.dumps(target_payload, indent=2), encoding="utf-8")
 
+    extra = VERBOSITY_FLAGS.get(verbosity, ["-v", "-s"])
     cmd = [
         sys.executable, "-m", "pytest",
         "--run-json", str(target_file),
-        "-v", "-s",
+        *extra,
         "--tb=short",
         "--color=yes",
     ]

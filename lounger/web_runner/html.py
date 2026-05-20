@@ -112,6 +112,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
     <span class="status-dot" id="statusDot"></span>
     <span id="statusText">就绪</span>
     <span style="flex:1"></span>
+    <span id="verbosityGroup" style="display:flex;align-items:center;gap:2px;font-size:12px;color:var(--muted)">
+      <label style="cursor:pointer"><input type="radio" name="verbosity" value="quiet" onclick="setVerbosity('quiet')"> 静默</label>
+      <label style="cursor:pointer;margin-left:6px"><input type="radio" name="verbosity" value="normal" onclick="setVerbosity('normal')"> 标准</label>
+      <label style="cursor:pointer;margin-left:6px"><input type="radio" name="verbosity" value="verbose" onclick="setVerbosity('verbose')" checked> 详细</label>
+      <label style="cursor:pointer;margin-left:6px"><input type="radio" name="verbosity" value="full" onclick="setVerbosity('full')"> 完整</label>
+    </span>
     <button class="btn btn-outline" onclick="copyLogs()" id="copyBtn" style="display:none">📋 复制日志</button>
     <button class="btn btn-outline" onclick="clearLogs()" id="clearBtn" style="display:none">🧹 清空日志</button>
   </div>
@@ -130,6 +136,8 @@ let caseTree = null;
 let selectedIds = new Set();
 let currentRunId = null;
 let eventSource = null;
+let currentVerbosity = 'verbose';
+function setVerbosity(v) { currentVerbosity = v; }
 
 // ── fetch cases ──
 async function loadCases() {
@@ -362,7 +370,7 @@ async function startRun(nodeids) {
   const resp = await fetch('/api/run', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({nodeids})
+    body: JSON.stringify({nodeids, verbosity: currentVerbosity})
   });
   const data = await resp.json();
   if (data.error) { alert(data.error); return; }
