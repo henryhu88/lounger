@@ -17,6 +17,7 @@ Next generation automated testing framework. Supports API, Web, and AI automated
 * **📊 增强型报告**: 内置定制化 HTML 测试报告，提供详尽的执行日志、截图与断言信息。
 * **⚡ 性能与并发**: 原生支持 `pytest-xdist`，轻松实现测试用例的并发执行。
 * **💾 数据驱动与缓存**: 内置数据驱动支持（YAML/JSON）以及跨用例的缓存管理机制。
+* **💻 web测试运行器**：提供强大的测试运行器，运行测试用例更简单。
 
 ---
 
@@ -45,7 +46,12 @@ Next generation automated testing framework. Supports API, Web, and AI automated
 
 ```bash
 pip install lounger
+```
 
+* 使用最新项目代码
+
+```bash
+pip install -U git+https://github.com/SeldomQA/lounger.git@main
 ```
 
 * 查看`lounger` 命令
